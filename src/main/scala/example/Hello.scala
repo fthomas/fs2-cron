@@ -25,7 +25,7 @@ object Hello extends App {
     .drain
     .unsafeRunSync()
 
-/*
+  /*
 Example output:
 
 2018-08-24T18:42:45.004
@@ -45,7 +45,7 @@ Example output:
 2018-08-24T18:43:14.005
 2018-08-24T18:43:15.006
 2018-08-24T18:43:20.005
-*/
+   */
 
   def scheduled[F[_], O](
       scheduler: Scheduler,
@@ -62,8 +62,7 @@ Example output:
     loop
   }
 
-  def durationUntilNext(cronExpr: CronExpr,
-                        from: LocalDateTime): Option[FiniteDuration] =
+  def durationUntilNext(cronExpr: CronExpr, from: LocalDateTime): Option[FiniteDuration] =
     cronExpr.next(from).map { next =>
       FiniteDuration(from.until(next, ChronoUnit.MILLIS), TimeUnit.MILLISECONDS)
     }
