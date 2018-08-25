@@ -5,6 +5,7 @@ import sbtcrossproject.CrossType
 
 val groupId = "eu.timepit"
 val projectName = "fs2-cron"
+val rootPkg = s"$groupId.${projectName.replace("-","")}"
 val gitHubOwner = "fthomas"
 
 val moduleCrossPlatformMatrix = Map(
@@ -54,12 +55,21 @@ def myCrossProject(name: String): CrossProject =
 lazy val commonSettings = Def.settings(
   compileSettings,
   metadataSettings,
-  scaladocSettings
+  scaladocSettings,
+  initialCommands := s"""
+    import $rootPkg._
+  """
 )
 
 lazy val compileSettings = Def.settings()
 
-lazy val metadataSettings = Def.settings()
+lazy val metadataSettings = Def.settings(
+  name := projectName,
+  organization := groupId,
+  homepage := Some(url(s"https://github.com/$gitHubOwner/$projectName")),
+  startYear := Some(2018),
+  licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+)
 
 lazy val noPublishSettings = Def.settings(
   skip in publish := true

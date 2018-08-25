@@ -21,7 +21,10 @@ package object fs2cron {
 
   def durationFromNow[F[_]: Sync](cronExpr: CronExpr): Stream[F, FiniteDuration] =
     evalNow.flatMap { now =>
-      Stream.emits(durationFrom(now, cronExpr).toList)
+      durationFrom(now, cronExpr) match {
+        case Some(d) => Stream.emit(d)
+        case None    => Stream.empty
+      }
     }
 
   def evalNow[F[_]](implicit F: Sync[F]): Stream[F, LocalDateTime] =
