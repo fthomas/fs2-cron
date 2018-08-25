@@ -5,7 +5,7 @@ import sbtcrossproject.CrossType
 
 val groupId = "eu.timepit"
 val projectName = "fs2-cron"
-val rootPkg = s"$groupId.${projectName.replace("-","")}"
+val rootPkg = s"$groupId.${projectName.replace("-", "")}"
 val gitHubOwner = "fthomas"
 
 val moduleCrossPlatformMatrix = Map(
@@ -36,7 +36,8 @@ lazy val core = myCrossProject("core")
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.cron4s,
-      Dependencies.fs2Core
+      Dependencies.fs2Core,
+      Dependencies.scalaTest % Test
     )
   )
 
@@ -58,6 +59,10 @@ lazy val commonSettings = Def.settings(
   scaladocSettings,
   initialCommands := s"""
     import $rootPkg._
+    import cats.effect.IO
+    import cron4s.Cron
+    import fs2.{Scheduler, Stream}
+    import scala.concurrent.ExecutionContext.Implicits._
   """
 )
 

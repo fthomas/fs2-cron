@@ -5,7 +5,7 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
 import cats.effect.{Async, IO, Sync}
-import cron4s._
+import cron4s.Cron
 import cron4s.expr.CronExpr
 import cron4s.lib.javatime._
 import fs2.{Scheduler, Stream}

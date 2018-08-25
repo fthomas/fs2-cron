@@ -7,11 +7,14 @@ import java.util.concurrent.TimeUnit
 import cats.effect.Sync
 import cron4s.expr.CronExpr
 import cron4s.lib.javatime._
-import fs2.Stream
+import fs2.{Scheduler, Stream}
 
 import scala.concurrent.duration.FiniteDuration
 
 package object fs2cron {
+
+  implicit def toSchedulerCronOps(scheduler: Scheduler): SchedulerCronOps =
+    new SchedulerCronOps(scheduler)
 
   def durationFrom(from: LocalDateTime, cronExpr: CronExpr): Option[FiniteDuration] =
     cronExpr.next(from).map { next =>
