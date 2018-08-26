@@ -22,6 +22,17 @@ val stream = Scheduler[IO](1).
 stream.take(3).compile.drain.unsafeRunSync
 ```
 
+## Using fs2-cron
+
+The latest version of the library is available for Scala 2.12.
+
+If you're using sbt, add the following to your build:
+```sbt
+libraryDependencies ++= Seq(
+  "eu.timepit" %% "fs2-cron-core" % "<latestVersion>"
+)
+```
+
 ## License
 
 **fs2-cron** is licensed under the Apache License, Version 2.0, available at

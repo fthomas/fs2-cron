@@ -22,9 +22,20 @@ val stream = Scheduler[IO](1).
 // stream: fs2.Stream[cats.effect.IO,Unit] = Stream(..)
 
 stream.take(3).compile.drain.unsafeRunSync
-// 16:54:34.102
-// 16:54:36.003
-// 16:54:38.006
+// 17:42:24.108
+// 17:42:26.007
+// 17:42:28.004
+```
+
+## Using fs2-cron
+
+The latest version of the library is available for Scala 2.12.
+
+If you're using sbt, add the following to your build:
+```sbt
+libraryDependencies ++= Seq(
+  "eu.timepit" %% "fs2-cron-core" % "<latestVersion>"
+)
 ```
 
 ## License
