@@ -20,12 +20,6 @@ lazy val root = project
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
-    inThisBuild(
-      List(
-        organization := "com.example",
-        version := "0.1.0-SNAPSHOT"
-      )),
-    name := "fs2-cron",
     libraryDependencies ++= Seq(
       Dependencies.cron4s,
       Dependencies.fs2Core
@@ -74,6 +68,13 @@ lazy val metadataSettings = Def.settings(
   homepage := Some(url(s"https://github.com/$gitHubOwner/$projectName")),
   startYear := Some(2018),
   licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
+  headerLicense := Some(HeaderLicense.ALv2("2018", s"$projectName contributors")),
+  developers := List(
+    Developer(
+      id = "fthomas",
+      name = "Frank S. Thomas",
+      email = "",
+      url("https://github.com/fthomas")))
 )
 
 lazy val noPublishSettings = Def.settings(
@@ -91,6 +92,7 @@ addCommandsAlias(
   "validate",
   Seq(
     "clean",
+    "headerCheck",
     "scalafmtCheck",
     "scalafmtSbtCheck",
     "test:scalafmtCheck",

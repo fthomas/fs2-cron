@@ -12,15 +12,18 @@ class SchedulerCronOpsTest extends FunSuite with Matchers {
 
   val scheduler: Stream[IO, Scheduler] = Scheduler[IO](1)
   val evenSeconds: CronExpr = Cron.unsafeParse("*/2 * * ? * *")
+  def isEven(i: Int): Boolean = i % 2 == 0
 
   test("awakeEveryCron") {
-    val s = scheduler.flatMap(_.awakeEveryCron[IO](evenSeconds)) >> evalNow[IO].map(_.getSecond)
-    s.take(2).compile.toList.map(_.forall(_ % 2 == 0)).unsafeRunSync()
+    val s1 = scheduler.flatMap(_.awakeEveryCron[IO](evenSeconds)) >> evalNow[IO]
+    val s2 = s1.map(_.getSecond).take(2).forall(isEven)
+    s2.compile.last.map(_.getOrElse(false)).unsafeRunSync()
   }
 
   test("sleepCron") {
-    val s = scheduler.flatMap(_.sleepCron[IO](evenSeconds)) >> evalNow[IO].map(_.getSecond)
-    s.compile.toList.map(_.forall(_ % 2 == 0)).unsafeRunSync()
+    val s1 = (scheduler.flatMap(_.sleepCron[IO](evenSeconds)) >> evalNow[IO])
+    val s2 = s1.map(_.getSecond).forall(isEven)
+    s2.compile.last.map(_.getOrElse(false)).unsafeRunSync()
   }
 
 }
