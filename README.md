@@ -9,7 +9,7 @@ import cats.effect.IO
 import cron4s.Cron
 import eu.timepit.fs2cron._
 import fs2.{Scheduler, Stream}
-import java.time.LocalDateTime
+import java.time.LocalTime
 import scala.concurrent.ExecutionContext.Implicits._
 ```
 ```scala
@@ -17,14 +17,14 @@ val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 // evenSeconds: cron4s.expr.CronExpr = */2 * * ? * *
 
 val stream = Scheduler[IO](1).flatMap {
-  _.awakeEveryCron[IO](evenSeconds) >> Stream.eval(IO(println(LocalDateTime.now)))
+  _.awakeEveryCron[IO](evenSeconds) >> Stream.eval(IO(println(LocalTime.now)))
 }
 // stream: fs2.Stream[cats.effect.IO,Unit] = Stream(..)
 
 stream.take(3).compile.drain.unsafeRunSync
-// 2018-08-26T07:40:38.094
-// 2018-08-26T07:40:40.003
-// 2018-08-26T07:40:42.005
+// 07:54:30.215
+// 07:54:32.007
+// 07:54:34.007
 ```
 
 ## License
