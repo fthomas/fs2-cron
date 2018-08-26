@@ -15,9 +15,9 @@ import scala.concurrent.ExecutionContext.Implicits._
 ```tut:book
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 
-val stream = Scheduler[IO](1).flatMap {
-  _.awakeEveryCron[IO](evenSeconds) >> Stream.eval(IO(println(LocalTime.now)))
-}
+val stream = Scheduler[IO](1).
+  flatMap(_.awakeEveryCron[IO](evenSeconds)).
+  flatMap(_ => Stream.eval(IO(println(LocalTime.now))))
 
 stream.take(3).compile.drain.unsafeRunSync
 ```

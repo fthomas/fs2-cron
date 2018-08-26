@@ -16,15 +16,15 @@ import scala.concurrent.ExecutionContext.Implicits._
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 // evenSeconds: cron4s.expr.CronExpr = */2 * * ? * *
 
-val stream = Scheduler[IO](1).flatMap {
-  _.awakeEveryCron[IO](evenSeconds) >> Stream.eval(IO(println(LocalTime.now)))
-}
+val stream = Scheduler[IO](1).
+  flatMap(_.awakeEveryCron[IO](evenSeconds)).
+  flatMap(_ => Stream.eval(IO(println(LocalTime.now))))
 // stream: fs2.Stream[cats.effect.IO,Unit] = Stream(..)
 
 stream.take(3).compile.drain.unsafeRunSync
-// 07:54:30.215
-// 07:54:32.007
-// 07:54:34.007
+// 16:54:34.102
+// 16:54:36.003
+// 16:54:38.006
 ```
 
 ## License
