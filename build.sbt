@@ -19,12 +19,6 @@ lazy val root = project
   .aggregate(coreJVM)
   .settings(commonSettings)
   .settings(noPublishSettings)
-  .settings(
-    libraryDependencies ++= Seq(
-      Dependencies.cron4s,
-      Dependencies.fs2Core
-    )
-  )
 
 lazy val core = myCrossProject("core")
   .settings(
