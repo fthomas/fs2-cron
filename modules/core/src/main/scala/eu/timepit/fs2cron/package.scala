@@ -32,20 +32,30 @@ package object fs2cron {
   implicit def toSchedulerCronOps(scheduler: Scheduler): SchedulerCronOps =
     new SchedulerCronOps(scheduler)
 
+  /** Calculates the duration between `from` and the next date-time
+    * that matches `cronExpr`.
+    */
   def durationFrom(from: LocalDateTime, cronExpr: CronExpr): Option[FiniteDuration] =
     cronExpr.next(from).map { next =>
       val durationInMillis = from.until(next, ChronoUnit.MILLIS)
       FiniteDuration(durationInMillis, TimeUnit.MILLISECONDS)
     }
 
+  /** Creates a single element stream of the duration between the
+    * current date-time and the next date-time that matches `cronExpr`.
+    */
   def durationFromNow[F[_]: Sync](cronExpr: CronExpr): Stream[F, FiniteDuration] =
     evalNow.flatMap { now =>
       durationFrom(now, cronExpr) match {
         case Some(d) => Stream.emit(d)
-        case None    => Stream.empty
+        case None =>
+          val msg = s"Could not calculate the next date-time from $now " +
+            s"given the cron expression '$cronExpr'. This should never happen."
+          Stream.raiseError(new Error(msg))
       }
     }
 
+  /** Creates a single element stream of the current date-time. */
   def evalNow[F[_]](implicit F: Sync[F]): Stream[F, LocalDateTime] =
     Stream.eval(F.delay(LocalDateTime.now))
 

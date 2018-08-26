@@ -22,13 +22,22 @@ import fs2.{Scheduler, Stream}
 
 import scala.concurrent.ExecutionContext
 
+/** Provides extension methods for `fs2.Scheduler` that works with
+  * `cron4s.expr.CronExpr`.
+  */
 final class SchedulerCronOps(val scheduler: Scheduler) extends AnyVal {
 
+  /** Creates a discrete stream that emits unit at every date-time that
+    *  matches `cronExpr`.
+    */
   def awakeEveryCron[F[_]: Async](cronExpr: CronExpr)(
       implicit ec: ExecutionContext
   ): Stream[F, Unit] =
     sleepCron(cronExpr).repeat
 
+  /** Creates a single element stream that waits until the next
+    * date-time that matches `cronExpr` before emitting unit.
+    */
   def sleepCron[F[_]: Async](cronExpr: CronExpr)(implicit ec: ExecutionContext): Stream[F, Unit] =
     durationFromNow(cronExpr).flatMap(d => scheduler.sleep(d))
 
