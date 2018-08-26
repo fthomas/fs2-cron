@@ -24,9 +24,9 @@ val stream = Scheduler[IO](1).
 // stream: fs2.Stream[cats.effect.IO,Unit] = Stream(..)
 
 stream.take(3).compile.drain.unsafeRunSync
-// 21:45:28.103
-// 21:45:30.004
-// 21:45:32.004
+// 22:30:04.093
+// 22:30:06.004
+// 22:30:08.009
 ```
 
 ## Using fs2-cron

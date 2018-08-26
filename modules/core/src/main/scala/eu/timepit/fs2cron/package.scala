@@ -35,10 +35,15 @@ package object fs2cron {
   /** Calculates the duration between `from` and the next date-time
     * that matches `cronExpr`.
     */
-  def durationFrom(from: LocalDateTime, cronExpr: CronExpr): Option[FiniteDuration] =
-    cronExpr.next(from).map { next =>
-      val durationInMillis = from.until(next, ChronoUnit.MILLIS)
-      FiniteDuration(durationInMillis, TimeUnit.MILLISECONDS)
+  def durationFrom(from: LocalDateTime, cronExpr: CronExpr): Either[Throwable, FiniteDuration] =
+    cronExpr.next(from) match {
+      case Some(next) =>
+        val durationInMillis = from.until(next, ChronoUnit.MILLIS)
+        Right(FiniteDuration(durationInMillis, TimeUnit.MILLISECONDS))
+      case None =>
+        val msg = s"Could not calculate the next date-time from $from " +
+          s"given the cron expression '$cronExpr'. This should never happen."
+        Left(new Throwable(msg))
     }
 
   /** Creates a single element stream of the duration between the
@@ -47,11 +52,8 @@ package object fs2cron {
   def durationFromNow[F[_]: Sync](cronExpr: CronExpr): Stream[F, FiniteDuration] =
     evalNow.flatMap { now =>
       durationFrom(now, cronExpr) match {
-        case Some(d) => Stream.emit(d)
-        case None =>
-          val msg = s"Could not calculate the next date-time from $now " +
-            s"given the cron expression '$cronExpr'. This should never happen."
-          Stream.raiseError(new Error(msg))
+        case Right(d) => Stream.emit(d)
+        case Left(t)  => Stream.raiseError(t)
       }
     }
 
