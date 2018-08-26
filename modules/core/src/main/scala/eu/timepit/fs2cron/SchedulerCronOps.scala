@@ -27,8 +27,8 @@ import scala.concurrent.ExecutionContext
   */
 final class SchedulerCronOps(val scheduler: Scheduler) extends AnyVal {
 
-  /** Creates a discrete stream that emits unit at every date-time that
-    *  matches `cronExpr`.
+  /** Creates a discrete stream that emits unit at every date-time from
+    * now that matches `cronExpr`.
     */
   def awakeEveryCron[F[_]: Async](cronExpr: CronExpr)(
       implicit ec: ExecutionContext
