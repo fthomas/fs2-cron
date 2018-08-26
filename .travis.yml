@@ -11,6 +11,8 @@ cache:
   - "$HOME/.sbt/boot/"
 stages:
 - name: test
+- name: release
+  if: (branch = master AND type = push) OR (tag IS present)
 jobs:
   include:
   - stage: test
@@ -19,3 +21,5 @@ jobs:
     script: sbt ++$TRAVIS_SCALA_VERSION validate
     after_success:
     - codecov
+  - stage: release
+    script: sbt ci-release
