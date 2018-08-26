@@ -21,7 +21,7 @@ class SchedulerCronOpsTest extends FunSuite with Matchers {
   }
 
   test("sleepCron") {
-    val s1 = (scheduler.flatMap(_.sleepCron[IO](evenSeconds)) >> evalNow[IO])
+    val s1 = scheduler.flatMap(_.sleepCron[IO](evenSeconds)) >> evalNow[IO]
     val s2 = s1.map(_.getSecond).forall(isEven)
     s2.compile.last.map(_.getOrElse(false)).unsafeRunSync()
   }
