@@ -1,3 +1,4 @@
+import com.typesafe.sbt.SbtGit.GitKeys
 import sbtcrossproject.CrossProject
 import sbtcrossproject.CrossType
 
@@ -17,6 +18,7 @@ val moduleCrossPlatformMatrix = Map(
 lazy val root = project
   .in(file("."))
   .aggregate(coreJVM)
+  .aggregate(readme)
   .settings(commonSettings)
   .settings(noPublishSettings)
 
@@ -88,7 +90,19 @@ lazy val noPublishSettings = Def.settings(
   skip in publish := true
 )
 
-lazy val scaladocSettings = Def.settings()
+lazy val scaladocSettings = Def.settings(
+  Compile / doc / scalacOptions ++= {
+    val tree =
+      if (isSnapshot.value) GitKeys.gitHeadCommit.value
+      else GitKeys.gitDescribedVersion.value.map("v" + _)
+    Seq(
+      "-doc-source-url",
+      s"${scmInfo.value.get.browseUrl}/blob/${tree.get}€{FILE_PATH}.scala",
+      "-sourcepath",
+      (LocalRootProject / baseDirectory).value.getAbsolutePath
+    )
+  }
+)
 
 /// commands
 
