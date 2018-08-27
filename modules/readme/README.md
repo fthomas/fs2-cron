@@ -1,8 +1,12 @@
 # fs2-cron
 [![Build Status](https://travis-ci.org/fthomas/fs2-cron.svg?branch=master)](https://travis-ci.org/fthomas/fs2-cron)
 [![codecov](https://codecov.io/gh/fthomas/fs2-cron/branch/master/graph/badge.svg)](https://codecov.io/gh/fthomas/fs2-cron)
+[![Join the chat at https://gitter.im/fthomas/fs2-cron](https://badges.gitter.im/fthomas/fs2-cron.svg)](https://gitter.im/fthomas/fs2-cron?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Scaladex](https://index.scala-lang.org/fthomas/fs2-cron/latest.svg?color=blue)](https://index.scala-lang.org/fthomas/fs2-cron/fs2-cron-core)
 [![Scaladoc](https://www.javadoc.io/badge/eu.timepit/fs2-cron-core_2.12.svg?color=blue&label=Scaladoc)](https://javadoc.io/doc/eu.timepit/fs2-cron-core_2.12)
+
+**fs2-cron** is a microlibrary that provides [FS2][FS2] streams based
+on [Cron4s][Cron4s] cron expressions.
 
 ## Quick example
 
@@ -40,3 +44,6 @@ libraryDependencies ++= Seq(
 **fs2-cron** is licensed under the Apache License, Version 2.0, available at
 http://www.apache.org/licenses/LICENSE-2.0 and also in the
 [LICENSE](https://github.com/fthomas/status-page/blob/master/LICENSE) file.
+
+[Cron4s]: https://github.com/alonsodomin/cron4s
+[FS2]: https://github.com/functional-streams-for-scala/fs2
