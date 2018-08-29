@@ -1,6 +1,7 @@
 import com.typesafe.sbt.SbtGit.GitKeys
 import sbtcrossproject.CrossProject
 import sbtcrossproject.CrossType
+import scala.sys.process._
 
 /// variables
 
@@ -23,26 +24,27 @@ lazy val root = project
   .settings(noPublishSettings)
 
 lazy val core = myCrossProject("core")
-  .enablePlugins(BuildInfoPlugin)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.cron4s,
       Dependencies.fs2Core,
       Dependencies.scalaTest % Test
-    ),
-    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
-    buildInfoPackage := s"$rootPkg.internal"
+    )
   )
 
 lazy val coreJVM = core.jvm
 
 lazy val readme = project
   .in(file("modules/readme"))
+  .enablePlugins(BuildInfoPlugin)
   .enablePlugins(TutPlugin)
   .dependsOn(coreJVM)
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
+    buildInfoKeys := Seq[BuildInfoKey](
+      "latestVersion" -> "git describe --abbrev=0".!!.replace("v", "").trim
+    ),
     fork in Tut := true,
     scalacOptions -= "-Ywarn-unused:imports",
     tutSourceDirectory := baseDirectory.value,
@@ -88,7 +90,9 @@ lazy val metadataSettings = Def.settings(
       id = "fthomas",
       name = "Frank S. Thomas",
       email = "",
-      url("https://github.com/fthomas")))
+      url("https://github.com/fthomas")
+    )
+  )
 )
 
 lazy val noPublishSettings = Def.settings(

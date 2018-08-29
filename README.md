@@ -20,7 +20,7 @@ import scala.concurrent.ExecutionContext
 ```
 ```scala
 implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
-// timer: cats.effect.Timer[cats.effect.IO] = cats.effect.internals.IOTimer@64ef2719
+// timer: cats.effect.Timer[cats.effect.IO] = cats.effect.internals.IOTimer@7b423f90
 
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 // evenSeconds: cron4s.expr.CronExpr = */2 * * ? * *
@@ -32,9 +32,9 @@ val scheduled = awakeEveryCron[IO](evenSeconds) >> printTime
 // scheduled: fs2.Stream[[x]cats.effect.IO[x],Unit] = Stream(..)
 
 scheduled.take(3).compile.drain.unsafeRunSync
-// 21:24:50.143
-// 21:24:52.002
-// 21:24:54.005
+// 22:52:48.114
+// 22:52:50.005
+// 22:52:52.006
 ```
 
 ## Using fs2-cron
@@ -42,9 +42,10 @@ scheduled.take(3).compile.drain.unsafeRunSync
 The latest version of the library is available for Scala 2.12.
 
 If you're using sbt, add the following to your build:
+
 ```sbt
 libraryDependencies ++= Seq(
-  "eu.timepit" %% "fs2-cron-core" % "<latestVersion>"
+  "eu.timepit" %% "fs2-cron-core" % "0.0.4"
 )
 ```
 

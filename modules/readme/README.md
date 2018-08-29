@@ -35,10 +35,17 @@ scheduled.take(3).compile.drain.unsafeRunSync
 The latest version of the library is available for Scala 2.12.
 
 If you're using sbt, add the following to your build:
-```sbt
-libraryDependencies ++= Seq(
-  "eu.timepit" %% "fs2-cron-core" % "<latestVersion>"
-)
+```tut:passthrough
+{
+  val fence = "`" * 3
+  print(
+    s"""${fence}sbt
+       |libraryDependencies ++= Seq(
+       |  "eu.timepit" %% "fs2-cron-core" % "${buildinfo.BuildInfo.latestVersion}"
+       |)
+       |${fence}""".stripMargin.trim
+  )
+}
 ```
 
 ## License
