@@ -23,12 +23,15 @@ lazy val root = project
   .settings(noPublishSettings)
 
 lazy val core = myCrossProject("core")
+  .enablePlugins(BuildInfoPlugin)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.cron4s,
       Dependencies.fs2Core,
       Dependencies.scalaTest % Test
-    )
+    ),
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := s"$rootPkg.internal"
   )
 
 lazy val coreJVM = core.jvm
@@ -62,10 +65,12 @@ lazy val commonSettings = Def.settings(
   scaladocSettings,
   initialCommands := s"""
     import $rootPkg._
-    import cats.effect.IO
+    import cats.effect.{IO, Timer}
     import cron4s.Cron
-    import fs2.{Scheduler, Stream}
-    import scala.concurrent.ExecutionContext.Implicits._
+    import fs2.Stream
+    import scala.concurrent.ExecutionContext
+
+    implicit val ioTimer: Timer[IO] = IO.timer(ExecutionContext.global)
   """
 )
 
