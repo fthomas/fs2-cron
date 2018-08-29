@@ -11,6 +11,7 @@ EOF
 
 sbt readme/tut
 
-git commit -a -m "Setting version $VERSION"
+git commit -a -m "Setting version to $VERSION"
 git tag -a -s v$VERSION -m "Releasing $VERSION"
+git push
 git push --tags
