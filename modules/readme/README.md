@@ -11,21 +11,23 @@ on [Cron4s][Cron4s] cron expressions.
 ## Quick example
 
 ```tut:silent
-import cats.effect.IO
+import cats.effect.{IO, Timer}
 import cron4s.Cron
-import eu.timepit.fs2cron._
-import fs2.{Scheduler, Stream}
+import eu.timepit.fs2cron.awakeEveryCron
+import fs2.Stream
 import java.time.LocalTime
-import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.ExecutionContext
 ```
 ```tut:book
+implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
+
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 
-val stream = Scheduler[IO](1).
-  flatMap(_.awakeEveryCron[IO](evenSeconds)).
-  flatMap(_ => Stream.eval(IO(println(LocalTime.now))))
+val printTime = Stream.eval(IO(println(LocalTime.now)))
 
-stream.take(3).compile.drain.unsafeRunSync
+val scheduled = awakeEveryCron[IO](evenSeconds) >> printTime
+
+scheduled.take(3).compile.drain.unsafeRunSync
 ```
 
 ## Using fs2-cron
