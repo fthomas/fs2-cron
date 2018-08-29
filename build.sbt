@@ -42,9 +42,7 @@ lazy val readme = project
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
-    buildInfoKeys := Seq[BuildInfoKey](
-      "latestVersion" -> "git describe --abbrev=0".!!.replace("v", "").trim
-    ),
+    buildInfoKeys := Seq[BuildInfoKey](latestVersion),
     fork in Tut := true,
     scalacOptions -= "-Ywarn-unused:imports",
     tutSourceDirectory := baseDirectory.value,
