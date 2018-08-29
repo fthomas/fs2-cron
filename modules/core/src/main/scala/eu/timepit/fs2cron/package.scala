@@ -20,22 +20,28 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
-import cats.effect.Sync
+import cats.ApplicativeError
+import cats.effect.{Sync, Timer}
 import cron4s.expr.CronExpr
 import cron4s.lib.javatime._
-import fs2.{Pure, Scheduler, Stream}
+import fs2.Stream
 
 import scala.concurrent.duration.FiniteDuration
 
 package object fs2cron {
 
-  implicit def toSchedulerCronOps(scheduler: Scheduler): SchedulerCronOps =
-    new SchedulerCronOps(scheduler)
+  /** Creates a discrete stream that emits unit at every date-time from
+    * now that matches `cronExpr`.
+    */
+  def awakeEveryCron[F[_]: Sync](cronExpr: CronExpr)(implicit timer: Timer[F]): Stream[F, Unit] =
+    sleepCron(cronExpr).repeat
 
   /** Creates a single element stream of the duration between `from`
     * and the next date-time that matches `cronExpr`.
     */
-  def durationFrom(from: LocalDateTime, cronExpr: CronExpr): Stream[Pure, FiniteDuration] =
+  def durationFrom[F[_]](from: LocalDateTime, cronExpr: CronExpr)(
+      implicit F: ApplicativeError[F, Throwable]
+  ): Stream[F, FiniteDuration] =
     cronExpr.next(from) match {
       case Some(next) =>
         val durationInMillis = from.until(next, ChronoUnit.MILLIS)
@@ -56,4 +62,9 @@ package object fs2cron {
   def evalNow[F[_]](implicit F: Sync[F]): Stream[F, LocalDateTime] =
     Stream.eval(F.delay(LocalDateTime.now))
 
+  /** Creates a single element stream that waits until the next
+    * date-time that matches `cronExpr` before emitting unit.
+    */
+  def sleepCron[F[_]: Sync](cronExpr: CronExpr)(implicit timer: Timer[F]): Stream[F, Unit] =
+    durationFromNow(cronExpr).flatMap(Stream.sleep[F])
 }

@@ -11,26 +11,30 @@ on [Cron4s][Cron4s] cron expressions.
 ## Quick example
 
 ```scala
-import cats.effect.IO
+import cats.effect.{IO, Timer}
 import cron4s.Cron
-import eu.timepit.fs2cron._
-import fs2.{Scheduler, Stream}
+import eu.timepit.fs2cron.awakeEveryCron
+import fs2.Stream
 import java.time.LocalTime
-import scala.concurrent.ExecutionContext.Implicits._
+import scala.concurrent.ExecutionContext
 ```
 ```scala
+implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
+// timer: cats.effect.Timer[cats.effect.IO] = cats.effect.internals.IOTimer@64ef2719
+
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 // evenSeconds: cron4s.expr.CronExpr = */2 * * ? * *
 
-val stream = Scheduler[IO](1).
-  flatMap(_.awakeEveryCron[IO](evenSeconds)).
-  flatMap(_ => Stream.eval(IO(println(LocalTime.now))))
-// stream: fs2.Stream[cats.effect.IO,Unit] = Stream(..)
+val printTime = Stream.eval(IO(println(LocalTime.now)))
+// printTime: fs2.Stream[cats.effect.IO,Unit] = Stream(..)
 
-stream.take(3).compile.drain.unsafeRunSync
-// 00:12:24.093
-// 00:12:26.004
-// 00:12:28.009
+val scheduled = awakeEveryCron[IO](evenSeconds) >> printTime
+// scheduled: fs2.Stream[[x]cats.effect.IO[x],Unit] = Stream(..)
+
+scheduled.take(3).compile.drain.unsafeRunSync
+// 21:24:50.143
+// 21:24:52.002
+// 21:24:54.005
 ```
 
 ## Using fs2-cron
