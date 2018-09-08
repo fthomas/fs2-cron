@@ -20,7 +20,7 @@ import scala.concurrent.ExecutionContext
 ```
 ```scala
 implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
-// timer: cats.effect.Timer[cats.effect.IO] = cats.effect.internals.IOTimer@7b423f90
+// timer: cats.effect.Timer[cats.effect.IO] = cats.effect.internals.IOTimer@7fa85a55
 
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 // evenSeconds: cron4s.expr.CronExpr = */2 * * ? * *
@@ -32,9 +32,9 @@ val scheduled = awakeEveryCron[IO](evenSeconds) >> printTime
 // scheduled: fs2.Stream[[x]cats.effect.IO[x],Unit] = Stream(..)
 
 scheduled.take(3).compile.drain.unsafeRunSync
-// 23:21:42.107
-// 23:21:44.005
-// 23:21:46.003
+// 14:52:04.125
+// 14:52:06.006
+// 14:52:08.007
 ```
 
 ## Using fs2-cron
@@ -45,7 +45,7 @@ If you're using sbt, add the following to your build:
 
 ```sbt
 libraryDependencies ++= Seq(
-  "eu.timepit" %% "fs2-cron-core" % "0.0.6"
+  "eu.timepit" %% "fs2-cron-core" % "0.0.7"
 )
 ```
 

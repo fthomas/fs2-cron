@@ -1,6 +1,7 @@
 import com.typesafe.sbt.SbtGit.GitKeys
 import sbtcrossproject.CrossProject
 import sbtcrossproject.CrossType
+import sbtcrossproject.Platform
 import scala.sys.process._
 
 /// variables
@@ -10,7 +11,7 @@ val projectName = "fs2-cron"
 val rootPkg = s"$groupId.${projectName.replace("-", "")}"
 val gitHubOwner = "fthomas"
 
-val moduleCrossPlatformMatrix = Map(
+val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
   "core" -> List(JVMPlatform)
 )
 
