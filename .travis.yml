@@ -16,8 +16,7 @@ stages:
   if: (branch = master AND type = push) OR (tag IS present)
 jobs:
   include:
-  - stage: test
-    install:
+  - install:
     - pip install --user codecov
     script: sbt ++$TRAVIS_SCALA_VERSION validate
     after_success:
