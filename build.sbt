@@ -46,6 +46,7 @@ lazy val readme = project
     buildInfoKeys := Seq[BuildInfoKey](latestVersion),
     fork in Tut := true,
     scalacOptions -= "-Ywarn-unused:imports",
+    scalacOptions -= "-Ywarn-unused-import", // the same as above but for 2.11
     tutSourceDirectory := baseDirectory.value,
     tutTargetDirectory := (LocalRootProject / baseDirectory).value
   )
