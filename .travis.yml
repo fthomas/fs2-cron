@@ -26,4 +26,5 @@ stages:
 jobs:
   include:
   - stage: release
+    scala: 2.12.8
     script: sbt ci-release
