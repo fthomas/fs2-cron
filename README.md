@@ -8,7 +8,7 @@
 **fs2-cron** is a microlibrary that provides [FS2][FS2] streams based
 on [Cron4s][Cron4s] cron expressions.
 
-## Quick example
+## Quick examples
 
 ```scala
 import cats.effect.{IO, Timer}
@@ -17,11 +17,10 @@ import eu.timepit.fs2cron.awakeEveryCron
 import fs2.Stream
 import java.time.LocalTime
 import scala.concurrent.ExecutionContext
+
+implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
 ```
 ```scala
-implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
-// timer: cats.effect.Timer[cats.effect.IO] = cats.effect.internals.IOTimer@d978ab9
-
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 // evenSeconds: cron4s.expr.CronExpr = */2 * * ? * *
 
@@ -32,9 +31,37 @@ val scheduled = awakeEveryCron[IO](evenSeconds) >> printTime
 // scheduled: fs2.Stream[[x]cats.effect.IO[x],Unit] = Stream(..)
 
 scheduled.take(3).compile.drain.unsafeRunSync
-// 23:00:08.087
-// 23:00:10.005
-// 23:00:12.005
+// 16:19:48.089934
+// 16:19:50.003158
+// 16:19:52.007836
+```
+
+```scala
+import cats.effect.ContextShift
+import eu.timepit.fs2cron.schedule
+
+implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+```
+```scala
+val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
+// everyFiveSeconds: cron4s.expr.CronExpr = */5 * * ? * *
+
+val scheduledTasks = schedule(List(
+  evenSeconds      -> IO(println(LocalTime.now + " task 1")),
+  everyFiveSeconds -> IO(println(LocalTime.now + " task 2"))
+))
+// scheduledTasks: fs2.Stream[cats.effect.IO,Unit] = Stream(..)
+
+scheduledTasks.take(9).compile.drain.unsafeRunSync
+// 16:19:55.007503 task 2
+// 16:19:56.005052 task 1
+// 16:19:58.003960 task 1
+// 16:20:00.004826 task 1
+// 16:20:00.005487 task 2
+// 16:20:02.001464 task 1
+// 16:20:04.003915 task 1
+// 16:20:05.003343 task 2
+// 16:20:06.003828 task 1
 ```
 
 ## Using fs2-cron

@@ -8,7 +8,7 @@
 **fs2-cron** is a microlibrary that provides [FS2][FS2] streams based
 on [Cron4s][Cron4s] cron expressions.
 
-## Quick example
+## Quick examples
 
 ```tut:silent
 import cats.effect.{IO, Timer}
@@ -17,10 +17,10 @@ import eu.timepit.fs2cron.awakeEveryCron
 import fs2.Stream
 import java.time.LocalTime
 import scala.concurrent.ExecutionContext
+
+implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
 ```
 ```tut:book
-implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
-
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 
 val printTime = Stream.eval(IO(println(LocalTime.now)))
@@ -28,6 +28,23 @@ val printTime = Stream.eval(IO(println(LocalTime.now)))
 val scheduled = awakeEveryCron[IO](evenSeconds) >> printTime
 
 scheduled.take(3).compile.drain.unsafeRunSync
+```
+
+```tut:silent
+import cats.effect.ContextShift
+import eu.timepit.fs2cron.schedule
+
+implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+```
+```tut:book
+val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
+
+val scheduledTasks = schedule(List(
+  evenSeconds      -> IO(println(LocalTime.now + " task 1")),
+  everyFiveSeconds -> IO(println(LocalTime.now + " task 2"))
+))
+
+scheduledTasks.take(9).compile.drain.unsafeRunSync
 ```
 
 ## Using fs2-cron
