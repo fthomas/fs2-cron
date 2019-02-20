@@ -68,13 +68,10 @@ package object fs2cron {
   def sleepCron[F[_]: Sync](cronExpr: CronExpr)(implicit timer: Timer[F]): Stream[F, Unit] =
     durationFromNow(cronExpr).flatMap(Stream.sleep[F])
 
-  def schedule[F[_]: Concurrent](tasks: List[(CronExpr, F[Unit])])(
+  def schedule[F[_]: Concurrent, A](tasks: List[(CronExpr, Stream[F, A])])(
       implicit timer: Timer[F]
-  ): Stream[F, Unit] =
-    Stream
-      .emits(tasks.map {
-        case (cronExpr, task) => awakeEveryCron[F](cronExpr) >> Stream.eval(task)
-      })
-      .covary[F]
-      .parJoinUnbounded
+  ): Stream[F, A] = {
+    val scheduled = tasks.map { case (cronExpr, task) => awakeEveryCron[F](cronExpr) >> task }
+    Stream.emits(scheduled).covary[F].parJoinUnbounded
+  }
 }

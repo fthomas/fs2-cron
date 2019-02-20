@@ -8,7 +8,7 @@
 **fs2-cron** is a microlibrary that provides [FS2][FS2] streams based
 on [Cron4s][Cron4s] cron expressions.
 
-## Quick examples
+## Examples
 
 ```scala
 import cats.effect.{IO, Timer}
@@ -31,9 +31,9 @@ val scheduled = awakeEveryCron[IO](evenSeconds) >> printTime
 // scheduled: fs2.Stream[[x]cats.effect.IO[x],Unit] = Stream(..)
 
 scheduled.take(3).compile.drain.unsafeRunSync
-// 16:19:48.089934
-// 16:19:50.003158
-// 16:19:52.007836
+// 20:24:34.087677
+// 20:24:36.006495
+// 20:24:38.002987
 ```
 
 ```scala
@@ -47,21 +47,21 @@ val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
 // everyFiveSeconds: cron4s.expr.CronExpr = */5 * * ? * *
 
 val scheduledTasks = schedule(List(
-  evenSeconds      -> IO(println(LocalTime.now + " task 1")),
-  everyFiveSeconds -> IO(println(LocalTime.now + " task 2"))
+  evenSeconds      -> Stream.eval(IO(println(LocalTime.now + " task 1"))),
+  everyFiveSeconds -> Stream.eval(IO(println(LocalTime.now + " task 2")))
 ))
 // scheduledTasks: fs2.Stream[cats.effect.IO,Unit] = Stream(..)
 
 scheduledTasks.take(9).compile.drain.unsafeRunSync
-// 16:19:55.007503 task 2
-// 16:19:56.005052 task 1
-// 16:19:58.003960 task 1
-// 16:20:00.004826 task 1
-// 16:20:00.005487 task 2
-// 16:20:02.001464 task 1
-// 16:20:04.003915 task 1
-// 16:20:05.003343 task 2
-// 16:20:06.003828 task 1
+// 20:24:40.010491 task 1
+// 20:24:40.010335 task 2
+// 20:24:42.003549 task 1
+// 20:24:44.007151 task 1
+// 20:24:45.007095 task 2
+// 20:24:46.004682 task 1
+// 20:24:48.002655 task 1
+// 20:24:50.001580 task 1
+// 20:24:50.003388 task 2
 ```
 
 ## Using fs2-cron

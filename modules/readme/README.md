@@ -8,7 +8,7 @@
 **fs2-cron** is a microlibrary that provides [FS2][FS2] streams based
 on [Cron4s][Cron4s] cron expressions.
 
-## Quick examples
+## Examples
 
 ```tut:silent
 import cats.effect.{IO, Timer}
@@ -40,8 +40,8 @@ implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.globa
 val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
 
 val scheduledTasks = schedule(List(
-  evenSeconds      -> IO(println(LocalTime.now + " task 1")),
-  everyFiveSeconds -> IO(println(LocalTime.now + " task 2"))
+  evenSeconds      -> Stream.eval(IO(println(LocalTime.now + " task 1"))),
+  everyFiveSeconds -> Stream.eval(IO(println(LocalTime.now + " task 2")))
 ))
 
 scheduledTasks.take(9).compile.drain.unsafeRunSync
