@@ -21,7 +21,7 @@ import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
 import cats.ApplicativeError
-import cats.effect.{Sync, Timer}
+import cats.effect.{Concurrent, Sync, Timer}
 import cron4s.expr.CronExpr
 import cron4s.lib.javatime._
 import fs2.Stream
@@ -67,4 +67,11 @@ package object fs2cron {
     */
   def sleepCron[F[_]: Sync](cronExpr: CronExpr)(implicit timer: Timer[F]): Stream[F, Unit] =
     durationFromNow(cronExpr).flatMap(Stream.sleep[F])
+
+  def schedule[F[_]: Concurrent, A](tasks: List[(CronExpr, Stream[F, A])])(
+      implicit timer: Timer[F]
+  ): Stream[F, A] = {
+    val scheduled = tasks.map { case (cronExpr, task) => awakeEveryCron[F](cronExpr) >> task }
+    Stream.emits(scheduled).covary[F].parJoinUnbounded
+  }
 }
