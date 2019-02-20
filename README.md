@@ -22,7 +22,7 @@ implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
 ```
 ```scala
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
-// evenSeconds: cron4s.expr.CronExpr = */2 * * ? * *
+// evenSeconds: cron4s.CronExpr = */2 * * ? * *
 
 val printTime = Stream.eval(IO(println(LocalTime.now)))
 // printTime: fs2.Stream[cats.effect.IO,Unit] = Stream(..)
@@ -31,9 +31,9 @@ val scheduled = awakeEveryCron[IO](evenSeconds) >> printTime
 // scheduled: fs2.Stream[[x]cats.effect.IO[x],Unit] = Stream(..)
 
 scheduled.take(3).compile.drain.unsafeRunSync
-// 20:24:34.087677
-// 20:24:36.006495
-// 20:24:38.002987
+// 20:35:50.099966
+// 20:35:52.005895
+// 20:35:54.003259
 ```
 
 ```scala
@@ -44,7 +44,7 @@ implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.globa
 ```
 ```scala
 val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
-// everyFiveSeconds: cron4s.expr.CronExpr = */5 * * ? * *
+// everyFiveSeconds: cron4s.CronExpr = */5 * * ? * *
 
 val scheduledTasks = schedule(List(
   evenSeconds      -> Stream.eval(IO(println(LocalTime.now + " task 1"))),
@@ -53,15 +53,16 @@ val scheduledTasks = schedule(List(
 // scheduledTasks: fs2.Stream[cats.effect.IO,Unit] = Stream(..)
 
 scheduledTasks.take(9).compile.drain.unsafeRunSync
-// 20:24:40.010491 task 1
-// 20:24:40.010335 task 2
-// 20:24:42.003549 task 1
-// 20:24:44.007151 task 1
-// 20:24:45.007095 task 2
-// 20:24:46.004682 task 1
-// 20:24:48.002655 task 1
-// 20:24:50.001580 task 1
-// 20:24:50.003388 task 2
+// 20:35:58.002980 task 1
+// 20:36:00.004799 task 2
+// 20:36:00.005573 task 1
+// 20:36:02.003908 task 1
+// 20:36:04.001799 task 1
+// 20:36:05.005588 task 2
+// 20:36:06.006398 task 1
+// 20:36:08.004831 task 1
+// 20:36:10.005374 task 1
+// 20:36:10.005485 task 2
 ```
 
 ## Using fs2-cron
@@ -72,7 +73,7 @@ If you're using sbt, add the following to your build:
 
 ```sbt
 libraryDependencies ++= Seq(
-  "eu.timepit" %% "fs2-cron-core" % "0.0.12"
+  "eu.timepit" %% "fs2-cron-core" % "0.1.0"
 )
 ```
 
