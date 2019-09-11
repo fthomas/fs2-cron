@@ -49,7 +49,7 @@ scheduledTasks.take(9).compile.drain.unsafeRunSync
 
 ## Using fs2-cron
 
-The latest version of the library is available for Scala 2.12.
+The latest version of the library is available for Scala 2.12 and 2.13.
 
 If you're using sbt, add the following to your build:
 ```tut:passthrough
