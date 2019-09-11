@@ -14,7 +14,6 @@ val gitHubOwner = "fthomas"
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
   "core" -> List(JVMPlatform)
 )
-
 /// projects
 
 lazy val root = project
@@ -26,8 +25,14 @@ lazy val root = project
 
 lazy val core = myCrossProject("core")
   .settings(
+    crossScalaVersions += "2.13.0"
+  )
+  .settings(
     libraryDependencies ++= Seq(
-      Dependencies.cron4s,
+      scalaVersion.value match {
+        case "2.13.0" => Dependencies.cron4s13
+        case _ => Dependencies.cron4s12
+      },
       Dependencies.fs2Core,
       Dependencies.scalaTest % Test
     )
