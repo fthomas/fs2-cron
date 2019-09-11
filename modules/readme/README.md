@@ -40,8 +40,8 @@ implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.globa
 val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
 
 val scheduledTasks = schedule(List(
-  evenSeconds      -> Stream.eval(IO(println(LocalTime.now + " task 1"))),
-  everyFiveSeconds -> Stream.eval(IO(println(LocalTime.now + " task 2")))
+  evenSeconds      -> Stream.eval(IO(println(LocalTime.now.toString + " task 1"))),
+  everyFiveSeconds -> Stream.eval(IO(println(LocalTime.now.toString + " task 2")))
 ))
 
 scheduledTasks.take(9).compile.drain.unsafeRunSync
