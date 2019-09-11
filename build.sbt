@@ -47,6 +47,7 @@ lazy val readme = project
     scalacOptions -= "-Ywarn-unused:imports",
     scalacOptions -= "-Ywarn-unused-import", // the same as above but for 2.11
     scalacOptions -= "-Wunused:imports",
+    scalacOptions -= "-deprecation",
     tutSourceDirectory := baseDirectory.value,
     tutTargetDirectory := (LocalRootProject / baseDirectory).value
   )
