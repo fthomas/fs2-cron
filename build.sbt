@@ -25,14 +25,8 @@ lazy val root = project
 
 lazy val core = myCrossProject("core")
   .settings(
-    crossScalaVersions += "2.13.0"
-  )
-  .settings(
     libraryDependencies ++= Seq(
-      scalaVersion.value match {
-        case "2.13.0" => Dependencies.cron4s13
-        case _ => Dependencies.cron4s12
-      },
+      Dependencies.cron4s,
       Dependencies.fs2Core,
       Dependencies.scalaTest % Test
     )
