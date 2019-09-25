@@ -31,9 +31,9 @@ val scheduled = awakeEveryCron[IO](evenSeconds) >> printTime
 // scheduled: fs2.Stream[[x]cats.effect.IO[x],Unit] = Stream(..)
 
 scheduled.take(3).compile.drain.unsafeRunSync
-// 20:53:54.097
-// 20:53:56.004
-// 20:53:58.009
+// 05:44:52.290
+// 05:44:54.006
+// 05:44:56.005
 ```
 
 ```scala
@@ -53,15 +53,16 @@ val scheduledTasks = schedule(List(
 // scheduledTasks: fs2.Stream[[+A]cats.effect.IO[A],Unit] = Stream(..)
 
 scheduledTasks.take(9).compile.drain.unsafeRunSync
-// 20:54:00.007 task 2
-// 20:54:00.011 task 1
-// 20:54:02.002 task 1
-// 20:54:04.004 task 1
-// 20:54:05.004 task 2
-// 20:54:06.008 task 1
-// 20:54:08.006 task 1
-// 20:54:10.002 task 1
-// 20:54:10.007 task 2
+// 05:44:58.003 task 1
+// 05:45:00.007 task 1
+// 05:45:00.007 task 2
+// 05:45:02.006 task 1
+// 05:45:04.007 task 1
+// 05:45:05.006 task 2
+// 05:45:06.007 task 1
+// 05:45:08.005 task 1
+// 05:45:10.004 task 2
+// 05:45:10.004 task 1
 ```
 
 ## Using fs2-cron
@@ -72,7 +73,7 @@ If you're using sbt, add the following to your build:
 
 ```sbt
 libraryDependencies ++= Seq(
-  "eu.timepit" %% "fs2-cron-core" % "0.2.1"
+  "eu.timepit" %% "fs2-cron-core" % "0.2.2"
 )
 ```
 
