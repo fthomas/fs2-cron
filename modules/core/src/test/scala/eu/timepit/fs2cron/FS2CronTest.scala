@@ -7,7 +7,6 @@ import org.scalatest.{FunSuite, Matchers}
 import scala.concurrent.ExecutionContext
 
 class FS2CronTest extends FunSuite with Matchers {
-
   implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
   val evenSeconds: CronExpr = Cron.unsafeParse("*/2 * * ? * *")
   def isEven(i: Int): Boolean = i % 2 == 0
