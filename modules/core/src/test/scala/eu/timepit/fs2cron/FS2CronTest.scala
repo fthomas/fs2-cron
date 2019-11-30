@@ -3,10 +3,11 @@ package eu.timepit.fs2cron
 import cats.effect.{ContextShift, IO, Timer}
 import cron4s.Cron
 import cron4s.expr.CronExpr
-import org.scalatest.{FunSuite, Matchers}
 import scala.concurrent.ExecutionContext
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class FS2CronTest extends FunSuite with Matchers {
+class FS2CronTest extends AnyFunSuite with Matchers {
   implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
   val evenSeconds: CronExpr = Cron.unsafeParse("*/2 * * ? * *")
   def isEven(i: Int): Boolean = i % 2 == 0
