@@ -38,17 +38,13 @@ lazy val coreJVM = core.jvm
 lazy val readme = project
   .in(file("modules/readme"))
   .enablePlugins(BuildInfoPlugin)
-  .enablePlugins(TutPlugin)
   .dependsOn(coreJVM)
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
     buildInfoKeys := Seq[BuildInfoKey](latestVersion),
-    fork in Tut := true,
     scalacOptions -= "-Ywarn-unused:imports",
-    scalacOptions -= "-Wunused:imports",
-    tutSourceDirectory := baseDirectory.value,
-    tutTargetDirectory := (LocalRootProject / baseDirectory).value
+    scalacOptions -= "-Wunused:imports"
   )
 
 /// settings
@@ -131,7 +127,6 @@ addCommandsAlias(
     "test",
     "coverageReport",
     "doc",
-    "readme/tut",
     "package",
     "packageSrc"
   )
