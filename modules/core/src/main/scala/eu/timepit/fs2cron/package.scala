@@ -29,6 +29,7 @@ import fs2.Stream
 import scala.concurrent.duration.FiniteDuration
 
 package object fs2cron {
+
   /** Creates a discrete stream that emits unit at every date-time from
     * now that matches `cronExpr`.
     */
