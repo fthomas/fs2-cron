@@ -3,7 +3,7 @@ jdk:
 - openjdk8
 scala:
 - 2.12.11
-- 2.13.1
+- 2.13.2
 
 before_install:
 - git fetch --tags
