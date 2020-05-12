@@ -39,8 +39,8 @@ package object fs2cron {
   /** Creates a single element stream of the duration between `from`
     * and the next date-time that matches `cronExpr`.
     */
-  def durationFrom[F[_]](from: LocalDateTime, cronExpr: CronExpr)(
-      implicit F: ApplicativeError[F, Throwable]
+  def durationFrom[F[_]](from: LocalDateTime, cronExpr: CronExpr)(implicit
+      F: ApplicativeError[F, Throwable]
   ): Stream[F, FiniteDuration] =
     cronExpr.next(from) match {
       case Some(next) =>
@@ -68,8 +68,8 @@ package object fs2cron {
   def sleepCron[F[_]: Sync](cronExpr: CronExpr)(implicit timer: Timer[F]): Stream[F, Unit] =
     durationFromNow(cronExpr).flatMap(Stream.sleep[F])
 
-  def schedule[F[_]: Concurrent, A](tasks: List[(CronExpr, Stream[F, A])])(
-      implicit timer: Timer[F]
+  def schedule[F[_]: Concurrent, A](tasks: List[(CronExpr, Stream[F, A])])(implicit
+      timer: Timer[F]
   ): Stream[F, A] = {
     val scheduled = tasks.map { case (cronExpr, task) => awakeEveryCron[F](cronExpr) >> task }
     Stream.emits(scheduled).covary[F].parJoinUnbounded
