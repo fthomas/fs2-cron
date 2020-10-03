@@ -34,14 +34,16 @@ package object fs2cron {
   /** Creates a discrete stream that emits unit at every date-time from
     * now that matches `cronExpr`.
     */
-  def awakeEveryCron[F[_]: Sync](cronExpr: CronExpr, zoneId: ZoneId = defaultZone)(implicit timer: Timer[F]): Stream[F, Unit] =
+  def awakeEveryCron[F[_]: Sync](cronExpr: CronExpr, zoneId: ZoneId = defaultZone)(implicit
+      timer: Timer[F]
+  ): Stream[F, Unit] =
     sleepCron(cronExpr, zoneId).repeat
 
   /** Creates a single element stream of the duration between `from`
     * and the next date-time that matches `cronExpr`.
     */
   def durationFrom[F[_]](from: ZonedDateTime, cronExpr: CronExpr)(implicit
-    F: ApplicativeError[F, Throwable]
+      F: ApplicativeError[F, Throwable]
   ): Stream[F, FiniteDuration] =
     cronExpr.next(from) match {
       case Some(next) =>
@@ -56,7 +58,10 @@ package object fs2cron {
   /** Creates a single element stream of the duration between the
     * current date-time and the next date-time that matches `cronExpr`.
     */
-  def durationFromNow[F[_]: Sync](cronExpr: CronExpr, zoneId: ZoneId = defaultZone): Stream[F, FiniteDuration] =
+  def durationFromNow[F[_]: Sync](
+      cronExpr: CronExpr,
+      zoneId: ZoneId = defaultZone
+  ): Stream[F, FiniteDuration] =
     evalNow.flatMap(now => durationFrom(now.atZone(zoneId), cronExpr))
 
   /** Creates a single element stream of the current date-time. */
@@ -66,7 +71,9 @@ package object fs2cron {
   /** Creates a single element stream that waits until the next
     * date-time that matches `cronExpr` before emitting unit.
     */
-  def sleepCron[F[_]: Sync](cronExpr: CronExpr, zoneId: ZoneId = defaultZone)(implicit timer: Timer[F]): Stream[F, Unit] =
+  def sleepCron[F[_]: Sync](cronExpr: CronExpr, zoneId: ZoneId = defaultZone)(implicit
+      timer: Timer[F]
+  ): Stream[F, Unit] =
     durationFromNow(cronExpr, zoneId).flatMap(Stream.sleep[F])
 
   def schedule[F[_]: Concurrent, A](tasks: List[(CronExpr, Stream[F, A])])(implicit

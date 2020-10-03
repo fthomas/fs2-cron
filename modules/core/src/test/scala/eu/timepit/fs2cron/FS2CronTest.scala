@@ -32,7 +32,8 @@ class FS2CronTest extends AnyFunSuite with Matchers {
   test("schedule") {
     implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
     val everySecond: CronExpr = Cron.unsafeParse("* * * ? * *")
-    val s1 = schedule(List(everySecond -> evalNow[IO], evenSeconds -> evalNow[IO])).map(instantSeconds)
+    val s1 =
+      schedule(List(everySecond -> evalNow[IO], evenSeconds -> evalNow[IO])).map(instantSeconds)
 
     val testIO = for {
       seconds <- s1.take(3).compile.toList
