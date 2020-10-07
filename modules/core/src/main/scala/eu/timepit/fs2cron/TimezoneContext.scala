@@ -26,12 +26,13 @@ trait TimezoneContext[F[_]] {
 
 object TimezoneContext {
   implicit def systemDefault[F[_]](implicit F: Sync[F]): TimezoneContext[F] =
-    TimezoneContext[F](ZoneId.systemDefault())
+    TimezoneContext[F](F.delay(ZoneId.systemDefault()))
 
-  implicit def utc[F[_]: Sync]: TimezoneContext[F] = TimezoneContext[F](ZoneOffset.UTC)
+  implicit def utc[F[_]](implicit F: Sync[F]): TimezoneContext[F] =
+    TimezoneContext[F](F.delay(ZoneOffset.UTC))
 
-  def apply[F[_]](zone: => ZoneId)(implicit F: Sync[F]): TimezoneContext[F] =
+  def apply[F[_]](zone: F[ZoneId]): TimezoneContext[F] =
     new TimezoneContext[F] {
-      override def zoneId: F[ZoneId] = F.delay(zone)
+      override def zoneId: F[ZoneId] = zone
     }
 }

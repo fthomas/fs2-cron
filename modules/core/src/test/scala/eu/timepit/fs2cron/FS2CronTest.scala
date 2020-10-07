@@ -52,7 +52,7 @@ class FS2CronTest extends AnyFunSuite with Matchers {
   }
 
   test("timezones") {
-    implicit val tc = TimezoneContext[IO](ZoneOffset.ofTotalSeconds(1))
+    implicit val tc = TimezoneContext[IO](IO.pure(ZoneOffset.ofTotalSeconds(1)))
 
     val s1 = awakeEveryCron[IO](evenSeconds) >> evalNow[IO]
     val s2 = s1.map(instantSeconds).take(2).forall(!isEven(_))
