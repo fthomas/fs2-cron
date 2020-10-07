@@ -18,18 +18,24 @@ class FS2CronTest extends AnyFunSuite with Matchers {
   def instantSeconds(i: Instant): Long = i.getEpochSecond
 
   test("awakeEveryCron") {
+    import TimezoneContext.systemDefault
+
     val s1 = awakeEveryCron[IO](evenSeconds) >> evalNow[IO]
     val s2 = s1.map(instantSeconds).take(2).forall(isEven)
     s2.compile.last.map(_ should be(Option(true))).unsafeRunSync()
   }
 
   test("sleepCron") {
+    import TimezoneContext.systemDefault
+
     val s1 = sleepCron[IO](evenSeconds) >> evalNow[IO]
     val s2 = s1.map(instantSeconds).forall(isEven)
     s2.compile.last.map(_ should be(Option(true))).unsafeRunSync()
   }
 
   test("schedule") {
+    import TimezoneContext.systemDefault
+
     implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
     val everySecond: CronExpr = Cron.unsafeParse("* * * ? * *")
     val s1 =
@@ -46,9 +52,9 @@ class FS2CronTest extends AnyFunSuite with Matchers {
   }
 
   test("timezones") {
-    val zone = ZoneOffset.ofTotalSeconds(1)
+    implicit val tc = TimezoneContext[IO](ZoneOffset.ofTotalSeconds(1))
 
-    val s1 = awakeEveryCron[IO](evenSeconds, zone) >> evalNow[IO]
+    val s1 = awakeEveryCron[IO](evenSeconds) >> evalNow[IO]
     val s2 = s1.map(instantSeconds).take(2).forall(!isEven(_))
     s2.compile.last.map(_ should be(Option(true))).unsafeRunSync()
   }

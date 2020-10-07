@@ -16,7 +16,7 @@
 
 package eu.timepit
 
-import java.time.{Instant, ZoneId, ZonedDateTime}
+import java.time.{Instant, ZonedDateTime}
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
@@ -29,15 +29,15 @@ import fs2.Stream
 import scala.concurrent.duration.FiniteDuration
 
 package object fs2cron {
-  val defaultZone: ZoneId = ZoneId.systemDefault()
 
   /** Creates a discrete stream that emits unit at every date-time from
     * now that matches `cronExpr`.
     */
-  def awakeEveryCron[F[_]: Sync](cronExpr: CronExpr, zoneId: ZoneId = defaultZone)(implicit
-      timer: Timer[F]
+  def awakeEveryCron[F[_]: Sync](cronExpr: CronExpr)(implicit
+      timer: Timer[F],
+      context: TimezoneContext[F]
   ): Stream[F, Unit] =
-    sleepCron(cronExpr, zoneId).repeat
+    sleepCron(cronExpr).repeat
 
   /** Creates a single element stream of the duration between `from`
     * and the next date-time that matches `cronExpr`.
@@ -58,11 +58,14 @@ package object fs2cron {
   /** Creates a single element stream of the duration between the
     * current date-time and the next date-time that matches `cronExpr`.
     */
-  def durationFromNow[F[_]: Sync](
-      cronExpr: CronExpr,
-      zoneId: ZoneId = defaultZone
+  def durationFromNow[F[_]: Sync](cronExpr: CronExpr)(implicit
+      timezoneContext: TimezoneContext[F]
   ): Stream[F, FiniteDuration] =
-    evalNow.flatMap(now => durationFrom(now.atZone(zoneId), cronExpr))
+    for {
+      now <- evalNow
+      zoneId <- Stream.eval(timezoneContext.zoneId)
+      duration <- durationFrom(now.atZone(zoneId), cronExpr)
+    } yield duration
 
   /** Creates a single element stream of the current date-time. */
   def evalNow[F[_]](implicit F: Sync[F]): Stream[F, Instant] =
@@ -71,13 +74,15 @@ package object fs2cron {
   /** Creates a single element stream that waits until the next
     * date-time that matches `cronExpr` before emitting unit.
     */
-  def sleepCron[F[_]: Sync](cronExpr: CronExpr, zoneId: ZoneId = defaultZone)(implicit
-      timer: Timer[F]
+  def sleepCron[F[_]: Sync](cronExpr: CronExpr)(implicit
+      timer: Timer[F],
+      timezoneContext: TimezoneContext[F]
   ): Stream[F, Unit] =
-    durationFromNow(cronExpr, zoneId).flatMap(Stream.sleep[F])
+    durationFromNow(cronExpr).flatMap(Stream.sleep[F])
 
   def schedule[F[_]: Concurrent, A](tasks: List[(CronExpr, Stream[F, A])])(implicit
-      timer: Timer[F]
+      timer: Timer[F],
+      timezoneContext: TimezoneContext[F]
   ): Stream[F, A] = {
     val scheduled = tasks.map { case (cronExpr, task) => awakeEveryCron[F](cronExpr) >> task }
     Stream.emits(scheduled).covary[F].parJoinUnbounded
