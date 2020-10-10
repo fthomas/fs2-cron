@@ -16,7 +16,7 @@
 
 package eu.timepit
 
-import java.time.{Instant, ZonedDateTime}
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
@@ -60,16 +60,11 @@ package object fs2cron {
     */
   def durationFromNow[F[_]: Sync](cronExpr: CronExpr)(implicit
       timezoneContext: TimezoneContext[F]
-  ): Stream[F, FiniteDuration] =
-    for {
-      now <- evalNow
-      zoneId <- Stream.eval(timezoneContext.zoneId)
-      duration <- durationFrom(now.atZone(zoneId), cronExpr)
-    } yield duration
+  ): Stream[F, FiniteDuration] = evalNow.flatMap(durationFrom(_, cronExpr))
 
   /** Creates a single element stream of the current date-time. */
-  def evalNow[F[_]](implicit F: Sync[F]): Stream[F, Instant] =
-    Stream.eval(F.delay(Instant.now))
+  def evalNow[F[_]: Sync](implicit timezoneContext: TimezoneContext[F]): Stream[F, ZonedDateTime] =
+    Stream.eval(timezoneContext.now)
 
   /** Creates a single element stream that waits until the next
     * date-time that matches `cronExpr` before emitting unit.

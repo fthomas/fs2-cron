@@ -16,12 +16,15 @@
 
 package eu.timepit.fs2cron
 
-import java.time.{ZoneId, ZoneOffset}
+import java.time.{Instant, ZoneId, ZoneOffset, ZonedDateTime}
 
 import cats.effect.Sync
 
 trait TimezoneContext[F[_]] {
   def zoneId: F[ZoneId]
+
+  def now(implicit F: Sync[F]): F[ZonedDateTime] =
+    F.flatMap(zoneId)(zone => F.delay(Instant.now().atZone(zone)))
 }
 
 object TimezoneContext {
