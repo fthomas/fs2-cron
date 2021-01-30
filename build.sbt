@@ -38,7 +38,7 @@ ThisBuild / githubWorkflowPublish := Seq(
     )
   )
 )
-ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8", "adopt@1.11")
+ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8")
 ThisBuild / githubWorkflowBuild :=
   Seq(
     WorkflowStep.Sbt(List("validate"), name = Some("Build project")),
@@ -104,7 +104,8 @@ lazy val commonSettings = Def.settings(
 )
 
 lazy val compileSettings = Def.settings(
-  scalaVersion := Scala_2_13
+  scalaVersion := Scala_2_13,
+  crossScalaVersions := List(Scala_2_12, Scala_2_13)
 )
 
 lazy val metadataSettings = Def.settings(
