@@ -45,6 +45,10 @@ ThisBuild / githubWorkflowBuild :=
     WorkflowStep.Use(UseRef.Public("codecov", "codecov-action", "v1"), name = Some("Codecov"))
   )
 
+/// global settings
+
+ThisBuild / versionScheme := Some("early-semver")
+
 /// projects
 
 lazy val root = project
