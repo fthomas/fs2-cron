@@ -16,15 +16,19 @@
 
 package eu.timepit.fs2cron
 
-import java.time.{Instant, ZoneId, ZoneOffset, ZonedDateTime}
+import cats.Monad
+import cats.effect.{Sync, Timer}
 
-import cats.effect.Sync
+import java.time.{Instant, ZoneId, ZoneOffset, ZonedDateTime}
+import java.util.concurrent.TimeUnit.MILLISECONDS
 
 trait TimezoneContext[F[_]] {
   def zoneId: F[ZoneId]
 
-  def now(implicit F: Sync[F]): F[ZonedDateTime] =
-    F.flatMap(zoneId)(zone => F.delay(Instant.now().atZone(zone)))
+  def now(implicit F: Monad[F], timer: Timer[F]): F[ZonedDateTime] =
+    F.flatMap(zoneId)(zone =>
+      F.map(timer.clock.realTime(MILLISECONDS))(Instant.ofEpochMilli(_).atZone(zone))
+    )
 }
 
 object TimezoneContext {

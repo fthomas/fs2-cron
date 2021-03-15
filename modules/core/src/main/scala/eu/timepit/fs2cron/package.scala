@@ -59,11 +59,15 @@ package object fs2cron {
     * current date-time and the next date-time that matches `cronExpr`.
     */
   def durationFromNow[F[_]: Sync](cronExpr: CronExpr)(implicit
-      timezoneContext: TimezoneContext[F]
+      timezoneContext: TimezoneContext[F],
+      timer: Timer[F]
   ): Stream[F, FiniteDuration] = evalNow.flatMap(durationFrom(_, cronExpr))
 
   /** Creates a single element stream of the current date-time. */
-  def evalNow[F[_]: Sync](implicit timezoneContext: TimezoneContext[F]): Stream[F, ZonedDateTime] =
+  def evalNow[F[_]: Sync](implicit
+      timezoneContext: TimezoneContext[F],
+      timer: Timer[F]
+  ): Stream[F, ZonedDateTime] =
     Stream.eval(timezoneContext.now)
 
   /** Creates a single element stream that waits until the next
