@@ -16,16 +16,15 @@
 
 package eu.timepit
 
-import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
-import java.util.concurrent.TimeUnit
-
-import cats.ApplicativeError
-import cats.effect.{Concurrent, Sync, Timer}
+import cats.ApplicativeThrow
+import cats.effect.Concurrent
 import cron4s.expr.CronExpr
 import cron4s.lib.javatime._
 import fs2.Stream
 
+import java.time.ZonedDateTime
+import java.time.temporal.ChronoUnit
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 
 package object fs2cron {
@@ -33,9 +32,9 @@ package object fs2cron {
   /** Creates a discrete stream that emits unit at every date-time from
     * now that matches `cronExpr`.
     */
-  def awakeEveryCron[F[_]: Sync](cronExpr: CronExpr)(implicit
-      timer: Timer[F],
-      context: TimezoneContext[F]
+  def awakeEveryCron[F[_]](cronExpr: CronExpr)(implicit
+      zonedTimer: ZonedTimer[F],
+      F: ApplicativeThrow[F]
   ): Stream[F, Unit] =
     sleepCron(cronExpr).repeat
 
@@ -43,7 +42,7 @@ package object fs2cron {
     * and the next date-time that matches `cronExpr`.
     */
   def durationFrom[F[_]](from: ZonedDateTime, cronExpr: CronExpr)(implicit
-      F: ApplicativeError[F, Throwable]
+      F: ApplicativeThrow[F]
   ): Stream[F, FiniteDuration] =
     cronExpr.next(from) match {
       case Some(next) =>
@@ -58,30 +57,27 @@ package object fs2cron {
   /** Creates a single element stream of the duration between the
     * current date-time and the next date-time that matches `cronExpr`.
     */
-  def durationFromNow[F[_]: Sync](cronExpr: CronExpr)(implicit
-      timezoneContext: TimezoneContext[F],
-      timer: Timer[F]
+  def durationFromNow[F[_]](cronExpr: CronExpr)(implicit
+      zonedTimer: ZonedTimer[F],
+      F: ApplicativeThrow[F]
   ): Stream[F, FiniteDuration] = evalNow.flatMap(durationFrom(_, cronExpr))
 
   /** Creates a single element stream of the current date-time. */
-  def evalNow[F[_]: Sync](implicit
-      timezoneContext: TimezoneContext[F],
-      timer: Timer[F]
-  ): Stream[F, ZonedDateTime] =
-    Stream.eval(timezoneContext.now)
+  def evalNow[F[_]](implicit zonedTimer: ZonedTimer[F]): Stream[F, ZonedDateTime] =
+    Stream.eval(zonedTimer.now)
 
   /** Creates a single element stream that waits until the next
     * date-time that matches `cronExpr` before emitting unit.
     */
-  def sleepCron[F[_]: Sync](cronExpr: CronExpr)(implicit
-      timer: Timer[F],
-      timezoneContext: TimezoneContext[F]
+  def sleepCron[F[_]](cronExpr: CronExpr)(implicit
+      zonedTimer: ZonedTimer[F],
+      F: ApplicativeThrow[F]
   ): Stream[F, Unit] =
-    durationFromNow(cronExpr).flatMap(Stream.sleep[F])
+    durationFromNow(cronExpr).flatMap(Stream.sleep[F](_)(zonedTimer.timer))
 
-  def schedule[F[_]: Concurrent, A](tasks: List[(CronExpr, Stream[F, A])])(implicit
-      timer: Timer[F],
-      timezoneContext: TimezoneContext[F]
+  def schedule[F[_], A](tasks: List[(CronExpr, Stream[F, A])])(implicit
+      zonedTimer: ZonedTimer[F],
+      F: Concurrent[F]
   ): Stream[F, A] = {
     val scheduled = tasks.map { case (cronExpr, task) => awakeEveryCron[F](cronExpr) >> task }
     Stream.emits(scheduled).covary[F].parJoinUnbounded
