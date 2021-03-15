@@ -16,30 +16,36 @@
 
 package eu.timepit.fs2cron
 
-import cats.Monad
 import cats.effect.{Sync, Timer}
+import cats.syntax.all._
+import cats.{FlatMap, Monad}
 
 import java.time.{Instant, ZoneId, ZoneOffset, ZonedDateTime}
 import java.util.concurrent.TimeUnit.MILLISECONDS
 
-trait TimezoneContext[F[_]] {
-  def zoneId: F[ZoneId]
+trait ZonedTimer[F[_]] {
+  def now: F[ZonedDateTime]
 
-  def now(implicit F: Monad[F], timer: Timer[F]): F[ZonedDateTime] =
-    F.flatMap(zoneId)(zone =>
-      F.map(timer.clock.realTime(MILLISECONDS))(Instant.ofEpochMilli(_).atZone(zone))
-    )
+  def timer: Timer[F]
 }
 
-object TimezoneContext {
-  implicit def systemDefault[F[_]](implicit F: Sync[F]): TimezoneContext[F] =
-    TimezoneContext[F](F.delay(ZoneId.systemDefault()))
+object ZonedTimer {
+  implicit def systemDefault[F[_]](implicit timer: Timer[F], F: Sync[F]): ZonedTimer[F] =
+    from(F.delay(ZoneId.systemDefault()))
 
-  implicit def utc[F[_]](implicit F: Sync[F]): TimezoneContext[F] =
-    TimezoneContext[F](F.delay(ZoneOffset.UTC))
+  implicit def utc[F[_]](implicit timer: Timer[F], F: Monad[F]): ZonedTimer[F] =
+    from(F.pure(ZoneOffset.UTC))
 
-  def apply[F[_]](zone: F[ZoneId]): TimezoneContext[F] =
-    new TimezoneContext[F] {
-      override def zoneId: F[ZoneId] = zone
+  def from[F[_]](zoneId: F[ZoneId])(implicit timer: Timer[F], F: FlatMap[F]): ZonedTimer[F] = {
+    val timer0 = timer
+    new ZonedTimer[F] {
+      override def now: F[ZonedDateTime] =
+        for {
+          zoneId <- zoneId
+          epochMilli <- timer0.clock.realTime(MILLISECONDS)
+        } yield Instant.ofEpochMilli(epochMilli).atZone(zoneId)
+
+      override def timer: Timer[F] = timer0
     }
+  }
 }
