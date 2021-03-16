@@ -26,7 +26,7 @@ class FS2CronTest extends AnyFunSuite with Matchers {
   }
 
   test("sleepCron") {
-    import ZonedTimer.systemDefault
+    import ZonedTimer.utc
 
     val s1 = sleepCron[IO](evenSeconds) >> evalInstantNow
     val s2 = s1.map(instantSeconds).forall(isEven)

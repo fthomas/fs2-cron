@@ -39,13 +39,13 @@ object ZonedTimer {
   def from[F[_]](zoneId: F[ZoneId])(implicit timer: Timer[F], F: FlatMap[F]): ZonedTimer[F] = {
     val timer0 = timer
     new ZonedTimer[F] {
-      override def now: F[ZonedDateTime] =
+      override val now: F[ZonedDateTime] =
         for {
           zoneId <- zoneId
           epochMilli <- timer0.clock.realTime(MILLISECONDS)
         } yield Instant.ofEpochMilli(epochMilli).atZone(zoneId)
 
-      override def timer: Timer[F] = timer0
+      override val timer: Timer[F] = timer0
     }
   }
 }
