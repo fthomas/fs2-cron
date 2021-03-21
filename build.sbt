@@ -171,7 +171,7 @@ addCommandsAlias(
   Seq(
     "clean",
     "headerCheck",
-    "scalafmtAllCheck",
+    "scalafmtCheckAll",
     "scalafmtSbtCheck",
     "coverage",
     "test",
