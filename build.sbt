@@ -133,7 +133,7 @@ lazy val metadataSettings = Def.settings(
   homepage := Some(url(s"https://github.com/$gitHubOwner/$projectName")),
   startYear := Some(2018),
   licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  headerLicense := Some(HeaderLicense.ALv2("2018", s"$projectName contributors")),
+  headerLicense := Some(HeaderLicense.ALv2("2018-2021", s"$projectName contributors")),
   developers := List(
     Developer(
       id = "fthomas",
@@ -188,6 +188,7 @@ addCommandsAlias(
 addCommandsAlias(
   "fmt",
   Seq(
+    "headerCreate",
     "scalafmtAll",
     "scalafmtSbt"
   )
