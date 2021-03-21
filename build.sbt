@@ -61,7 +61,6 @@ lazy val root = project
   .in(file("."))
   .aggregate(coreJVM)
   .aggregate(cron4sJVM)
-  .aggregate(readme)
   .settings(commonSettings)
   .settings(noPublishSettings)
 
