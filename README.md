@@ -11,58 +11,69 @@ on [Cron4s][Cron4s] cron expressions.
 ## Examples
 
 ```scala
-import cats.effect.{IO, Timer}
+import cats.effect.{ContextShift, IO, Timer}
 import cron4s.Cron
-import eu.timepit.fs2cron.awakeEveryCron
+import eu.timepit.fs2cron.ScheduledStreams
+import eu.timepit.fs2cron.cron4s.Cron4sScheduler
 import fs2.Stream
 import java.time.LocalTime
 import scala.concurrent.ExecutionContext
 
 implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
-```
-```scala
-val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
-// evenSeconds: cron4s.CronExpr = */2 * * ? * *
-
-val printTime = Stream.eval(IO(println(LocalTime.now)))
-// printTime: fs2.Stream[cats.effect.IO,Unit] = Stream(..)
-
-val scheduled = awakeEveryCron[IO](evenSeconds) >> printTime
-// scheduled: fs2.Stream[[x]cats.effect.IO[x],Unit] = Stream(..)
-
-scheduled.take(3).compile.drain.unsafeRunSync
-// 05:44:52.290
-// 05:44:54.006
-// 05:44:56.005
-```
-
-```scala
-import cats.effect.ContextShift
-import eu.timepit.fs2cron.schedule
-
 implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 ```
 ```scala
-val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
-// everyFiveSeconds: cron4s.CronExpr = */5 * * ? * *
+val streams = new ScheduledStreams(Cron4sScheduler.systemDefault[IO])
+// streams: ScheduledStreams[IO[A], cron4s.expr.CronExpr] = eu.timepit.fs2cron.ScheduledStreams@105ab2bd
 
-val scheduledTasks = schedule(List(
+val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
+// evenSeconds: cron4s.package.CronExpr = CronExpr(
+//   seconds = */2,
+//   minutes = *,
+//   hours = *,
+//   daysOfMonth = ?,
+//   months = *,
+//   daysOfWeek = *
+// )
+
+val printTime = Stream.eval(IO(println(LocalTime.now)))
+// printTime: Stream[IO, Unit] = Stream(..)
+
+val scheduled = streams.awakeEvery(evenSeconds) >> printTime
+// scheduled: Stream[IO[x], Unit] = Stream(..)
+
+scheduled.take(3).compile.drain.unsafeRunSync()
+// 20:15:10.083
+// 20:15:12.002
+// 20:15:14.002
+```
+```scala
+val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
+// everyFiveSeconds: cron4s.package.CronExpr = CronExpr(
+//   seconds = */5,
+//   minutes = *,
+//   hours = *,
+//   daysOfMonth = ?,
+//   months = *,
+//   daysOfWeek = *
+// )
+
+val scheduledTasks = streams.schedule(List(
   evenSeconds      -> Stream.eval(IO(println(LocalTime.now.toString + " task 1"))),
   everyFiveSeconds -> Stream.eval(IO(println(LocalTime.now.toString + " task 2")))
 ))
-// scheduledTasks: fs2.Stream[[+A]cats.effect.IO[A],Unit] = Stream(..)
+// scheduledTasks: Stream[IO[A], Unit] = Stream(..)
 
-scheduledTasks.take(9).compile.drain.unsafeRunSync
-// 05:44:58.003 task 1
-// 05:45:00.007 task 1
-// 05:45:00.007 task 2
-// 05:45:02.006 task 1
-// 05:45:04.007 task 1
-// 05:45:05.006 task 2
-// 05:45:06.007 task 1
-// 05:45:08.005 task 1
-// 05:45:10.004 task 2
-// 05:45:10.004 task 1
+scheduledTasks.take(9).compile.drain.unsafeRunSync()
+// 20:15:15.004 task 2
+// 20:15:16.003 task 1
+// 20:15:18.002 task 1
+// 20:15:20.001 task 2
+// 20:15:20.002 task 1
+// 20:15:22.003 task 1
+// 20:15:24.002 task 1
+// 20:15:25.003 task 2
+// 20:15:26.003 task 1
 ```
 
 ## Using fs2-cron
@@ -70,10 +81,9 @@ scheduledTasks.take(9).compile.drain.unsafeRunSync
 The latest version of the library is available for Scala 2.12 and 2.13.
 
 If you're using sbt, add the following to your build:
-
 ```sbt
 libraryDependencies ++= Seq(
-  "eu.timepit" %% "fs2-cron-core" % "0.2.2"
+  "eu.timepit" %% "fs2-cron-cron4s" % "0.4.0"
 )
 ```
 
