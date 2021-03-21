@@ -11,7 +11,7 @@ val projectName = "fs2-cron"
 val rootPkg = s"$groupId.${projectName.replace("-", "")}"
 val gitHubOwner = "fthomas"
 
-val Scala_2_12 = "2.12.11"
+val Scala_2_12 = "2.12.12"
 val Scala_2_13 = "2.13.5"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
@@ -43,11 +43,6 @@ ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8")
 ThisBuild / githubWorkflowBuild :=
   Seq(
     WorkflowStep.Sbt(List("validate"), name = Some("Build project")),
-    WorkflowStep.Sbt(
-      List("readme/mdoc"),
-      name = Some("Build README.md"),
-      cond = Some(s"matrix.scala == '$Scala_2_13'")
-    ),
     WorkflowStep.Use(UseRef.Public("codecov", "codecov-action", "v1"), name = Some("Codecov"))
   )
 
@@ -102,14 +97,12 @@ lazy val readme = project
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
-    crossScalaVersions := Nil,
     scalacOptions -= "-Xfatal-warnings",
     mdocIn := baseDirectory.value / "README.md",
     mdocOut := (LocalRootProject / baseDirectory).value / "README.md",
     mdocVariables := Map(
       "VERSION" -> latestVersion.value
-    ),
-    test := {}
+    )
   )
 
 /// settings
@@ -178,12 +171,12 @@ addCommandsAlias(
   Seq(
     "clean",
     "headerCheck",
-    "scalafmtCheck",
+    "scalafmtAllCheck",
     "scalafmtSbtCheck",
-    "test:scalafmtCheck",
     "coverage",
     "test",
     "coverageReport",
+    "readme/mdoc",
     "doc",
     "package",
     "packageSrc"
