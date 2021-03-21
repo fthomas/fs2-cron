@@ -61,6 +61,7 @@ lazy val root = project
   .in(file("."))
   .aggregate(coreJVM)
   .aggregate(cron4sJVM)
+  .aggregate(readme)
   .settings(commonSettings)
   .settings(noPublishSettings)
 
@@ -96,7 +97,6 @@ lazy val cron4sJVM = cron4s.jvm
 
 lazy val readme = project
   .in(file("modules/readme"))
-  .enablePlugins(BuildInfoPlugin)
   .enablePlugins(MdocPlugin)
   .dependsOn(cron4sJVM)
   .settings(commonSettings)
@@ -108,7 +108,8 @@ lazy val readme = project
     mdocOut := (LocalRootProject / baseDirectory).value / "README.md",
     mdocVariables := Map(
       "VERSION" -> latestVersion.value
-    )
+    ),
+    test := {}
   )
 
 /// settings
