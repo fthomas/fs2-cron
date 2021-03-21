@@ -26,7 +26,7 @@ object Cron4sScheduler {
   ): Scheduler[F, CronExpr] = {
     val timer0 = timer
     new Scheduler[F, CronExpr] {
-      override def untilNext(schedule: CronExpr): F[FiniteDuration] =
+      override def fromNowUntilNext(schedule: CronExpr): F[FiniteDuration] =
         now.flatMap { from =>
           schedule.next(from) match {
             case Some(next) =>
