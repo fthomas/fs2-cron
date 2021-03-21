@@ -98,6 +98,7 @@ lazy val readme = project
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
+    crossScalaVersions := List(Scala_2_13),
     scalacOptions -= "-Xfatal-warnings",
     mdocIn := baseDirectory.value / "README.md",
     mdocOut := (LocalRootProject / baseDirectory).value / "README.md",
