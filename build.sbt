@@ -43,6 +43,11 @@ ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8")
 ThisBuild / githubWorkflowBuild :=
   Seq(
     WorkflowStep.Sbt(List("validate"), name = Some("Build project")),
+    WorkflowStep.Sbt(
+      List("readme/mdoc"),
+      name = Some("Build README.md"),
+      cond = Some(s"matrix.scala == '$Scala_2_13'")
+    ),
     WorkflowStep.Use(UseRef.Public("codecov", "codecov-action", "v1"), name = Some("Codecov"))
   )
 
@@ -98,7 +103,6 @@ lazy val readme = project
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
-    crossScalaVersions := List(Scala_2_13),
     scalacOptions -= "-Xfatal-warnings",
     mdocIn := baseDirectory.value / "README.md",
     mdocOut := (LocalRootProject / baseDirectory).value / "README.md",
@@ -180,7 +184,6 @@ addCommandsAlias(
     "test",
     "coverageReport",
     "doc",
-    "readme/mdoc",
     "package",
     "packageSrc"
   )

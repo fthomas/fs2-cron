@@ -55,6 +55,10 @@ jobs:
       - name: Build project
         run: sbt ++${{ matrix.scala }} validate
 
+      - name: Build README.md
+        if: matrix.scala == '2.13.5'
+        run: sbt ++${{ matrix.scala }} readme/mdoc
+
       - name: Codecov
         uses: codecov/codecov-action@v1
 
