@@ -11,11 +11,12 @@ val projectName = "fs2-cron"
 val rootPkg = s"$groupId.${projectName.replace("-", "")}"
 val gitHubOwner = "fthomas"
 
-val Scala_2_12 = "2.12.11"
+val Scala_2_12 = "2.12.12"
 val Scala_2_13 = "2.13.5"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
-  "core" -> List(JVMPlatform)
+  "core" -> List(JVMPlatform),
+  "cron4s" -> List(JVMPlatform)
 )
 
 /// sbt-github-actions configuration
@@ -54,6 +55,7 @@ ThisBuild / versionScheme := Some("early-semver")
 lazy val root = project
   .in(file("."))
   .aggregate(coreJVM)
+  .aggregate(cron4sJVM)
   .aggregate(readme)
   .settings(commonSettings)
   .settings(noPublishSettings)
@@ -61,24 +63,46 @@ lazy val root = project
 lazy val core = myCrossProject("core")
   .settings(
     libraryDependencies ++= Seq(
-      Dependencies.cron4s,
-      Dependencies.fs2Core,
-      Dependencies.scalaTest % Test
+      Dependencies.fs2Core
     )
   )
 
 lazy val coreJVM = core.jvm
 
+lazy val cron4s = myCrossProject("cron4s")
+  .dependsOn(core)
+  .settings(
+    libraryDependencies ++= Seq(
+      Dependencies.cron4s,
+      Dependencies.scalaTest % Test
+    ),
+    initialCommands := s"""
+      import $rootPkg._
+      import cats.effect.{ContextShift, IO, Timer}
+      import cron4s.Cron
+      import fs2.Stream
+      import scala.concurrent.ExecutionContext
+
+      implicit val ioContextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
+      implicit val ioTimer: Timer[IO] = IO.timer(ExecutionContext.global)
+    """
+  )
+
+lazy val cron4sJVM = cron4s.jvm
+
 lazy val readme = project
   .in(file("modules/readme"))
-  .enablePlugins(BuildInfoPlugin)
-  .dependsOn(coreJVM)
+  .enablePlugins(MdocPlugin)
+  .dependsOn(cron4sJVM)
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
-    buildInfoKeys := Seq[BuildInfoKey](latestVersion),
-    scalacOptions -= "-Ywarn-unused:imports",
-    scalacOptions -= "-Wunused:imports"
+    scalacOptions -= "-Xfatal-warnings",
+    mdocIn := baseDirectory.value / "README.md",
+    mdocOut := (LocalRootProject / baseDirectory).value / "README.md",
+    mdocVariables := Map(
+      "VERSION" -> latestVersion.value
+    )
   )
 
 /// settings
@@ -94,17 +118,7 @@ def myCrossProject(name: String): CrossProject =
 lazy val commonSettings = Def.settings(
   compileSettings,
   metadataSettings,
-  scaladocSettings,
-  initialCommands := s"""
-    import $rootPkg._
-    import cats.effect.{ContextShift, IO, Timer}
-    import cron4s.Cron
-    import fs2.Stream
-    import scala.concurrent.ExecutionContext
-
-    implicit val ioContextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-    implicit val ioTimer: Timer[IO] = IO.timer(ExecutionContext.global)
-  """
+  scaladocSettings
 )
 
 lazy val compileSettings = Def.settings(
@@ -118,7 +132,7 @@ lazy val metadataSettings = Def.settings(
   homepage := Some(url(s"https://github.com/$gitHubOwner/$projectName")),
   startYear := Some(2018),
   licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
-  headerLicense := Some(HeaderLicense.ALv2("2018", s"$projectName contributors")),
+  headerLicense := Some(HeaderLicense.ALv2("2018-2021", s"$projectName contributors")),
   developers := List(
     Developer(
       id = "fthomas",
@@ -157,14 +171,23 @@ addCommandsAlias(
   Seq(
     "clean",
     "headerCheck",
-    "scalafmtCheck",
+    "scalafmtCheckAll",
     "scalafmtSbtCheck",
-    "test:scalafmtCheck",
     "coverage",
     "test",
     "coverageReport",
+    "readme/mdoc",
     "doc",
     "package",
     "packageSrc"
+  )
+)
+
+addCommandsAlias(
+  "fmt",
+  Seq(
+    "headerCreate",
+    "scalafmtAll",
+    "scalafmtSbt"
   )
 )

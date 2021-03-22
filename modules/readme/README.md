@@ -1,5 +1,5 @@
 # fs2-cron
-[![Build Status](https://travis-ci.com/fthomas/fs2-cron.svg?branch=master)](https://travis-ci.com/fthomas/fs2-cron)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/fthomas/fs2-cron/Continuous%20Integration)](https://github.com/fthomas/fs2-cron/actions?query=workflow%3A%22Continuous+Integration%22)
 [![codecov](https://codecov.io/gh/fthomas/fs2-cron/branch/master/graph/badge.svg)](https://codecov.io/gh/fthomas/fs2-cron)
 [![Join the chat at https://gitter.im/fthomas/fs2-cron](https://badges.gitter.im/fthomas/fs2-cron.svg)](https://gitter.im/fthomas/fs2-cron?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Scaladex](https://index.scala-lang.org/fthomas/fs2-cron/latest.svg?color=blue)](https://index.scala-lang.org/fthomas/fs2-cron/fs2-cron-core)
@@ -10,41 +10,38 @@ on [Cron4s][Cron4s] cron expressions.
 
 ## Examples
 
-```tut:silent
-import cats.effect.{IO, Timer}
+```scala mdoc:silent
+import cats.effect.{ContextShift, IO, Timer}
 import cron4s.Cron
-import eu.timepit.fs2cron.awakeEveryCron
+import eu.timepit.fs2cron.ScheduledStreams
+import eu.timepit.fs2cron.cron4s.Cron4sScheduler
 import fs2.Stream
 import java.time.LocalTime
 import scala.concurrent.ExecutionContext
 
 implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
+implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 ```
-```tut:book
+```scala mdoc
+val streams = new ScheduledStreams(Cron4sScheduler.systemDefault[IO])
+
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 
 val printTime = Stream.eval(IO(println(LocalTime.now)))
 
-val scheduled = awakeEveryCron[IO](evenSeconds) >> printTime
+val scheduled = streams.awakeEvery(evenSeconds) >> printTime
 
-scheduled.take(3).compile.drain.unsafeRunSync
+scheduled.take(3).compile.drain.unsafeRunSync()
 ```
-
-```tut:silent
-import cats.effect.ContextShift
-import eu.timepit.fs2cron.schedule
-
-implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-```
-```tut:book
+```scala mdoc
 val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
 
-val scheduledTasks = schedule(List(
+val scheduledTasks = streams.schedule(List(
   evenSeconds      -> Stream.eval(IO(println(LocalTime.now.toString + " task 1"))),
   everyFiveSeconds -> Stream.eval(IO(println(LocalTime.now.toString + " task 2")))
 ))
 
-scheduledTasks.take(9).compile.drain.unsafeRunSync
+scheduledTasks.take(9).compile.drain.unsafeRunSync()
 ```
 
 ## Using fs2-cron
@@ -52,17 +49,10 @@ scheduledTasks.take(9).compile.drain.unsafeRunSync
 The latest version of the library is available for Scala 2.12 and 2.13.
 
 If you're using sbt, add the following to your build:
-```tut:passthrough
-{
-  val fence = "`" * 3
-  print(
-    s"""${fence}sbt
-       |libraryDependencies ++= Seq(
-       |  "eu.timepit" %% "fs2-cron-core" % "${buildinfo.BuildInfo.latestVersion}"
-       |)
-       |${fence}""".stripMargin.trim
-  )
-}
+```sbt
+libraryDependencies ++= Seq(
+  "eu.timepit" %% "fs2-cron-cron4s" % "@VERSION@"
+)
 ```
 
 ## License
