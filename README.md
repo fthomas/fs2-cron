@@ -24,7 +24,7 @@ implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.globa
 ```
 ```scala
 val streams = new ScheduledStreams(Cron4sScheduler.systemDefault[IO])
-// streams: ScheduledStreams[IO[A], cron4s.expr.CronExpr] = eu.timepit.fs2cron.ScheduledStreams@105ab2bd
+// streams: ScheduledStreams[IO[A], cron4s.expr.CronExpr] = eu.timepit.fs2cron.ScheduledStreams@250d15d
 
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 // evenSeconds: cron4s.package.CronExpr = CronExpr(
@@ -43,9 +43,9 @@ val scheduled = streams.awakeEvery(evenSeconds) >> printTime
 // scheduled: Stream[IO[x], Unit] = Stream(..)
 
 scheduled.take(3).compile.drain.unsafeRunSync()
-// 20:15:10.083
-// 20:15:12.002
-// 20:15:14.002
+// 02:18:44.101
+// 02:18:46.002
+// 02:18:48.002
 ```
 ```scala
 val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
@@ -65,15 +65,15 @@ val scheduledTasks = streams.schedule(List(
 // scheduledTasks: Stream[IO[A], Unit] = Stream(..)
 
 scheduledTasks.take(9).compile.drain.unsafeRunSync()
-// 20:15:15.004 task 2
-// 20:15:16.003 task 1
-// 20:15:18.002 task 1
-// 20:15:20.001 task 2
-// 20:15:20.002 task 1
-// 20:15:22.003 task 1
-// 20:15:24.002 task 1
-// 20:15:25.003 task 2
-// 20:15:26.003 task 1
+// 02:18:50.004 task 1
+// 02:18:50.005 task 2
+// 02:18:52.002 task 1
+// 02:18:54.002 task 1
+// 02:18:55.001 task 2
+// 02:18:56.002 task 1
+// 02:18:58.002 task 1
+// 02:19:00.002 task 2
+// 02:19:00.002 task 1
 ```
 
 ## Using fs2-cron
@@ -83,7 +83,7 @@ The latest version of the library is available for Scala 2.12 and 2.13.
 If you're using sbt, add the following to your build:
 ```sbt
 libraryDependencies ++= Seq(
-  "eu.timepit" %% "fs2-cron-cron4s" % "0.4.0"
+  "eu.timepit" %% "fs2-cron-cron4s" % "0.5.0"
 )
 ```
 
