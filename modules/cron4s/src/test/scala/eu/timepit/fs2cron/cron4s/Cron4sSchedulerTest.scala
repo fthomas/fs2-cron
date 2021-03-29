@@ -1,6 +1,7 @@
 package eu.timepit.fs2cron.cron4s
 
-import cats.effect.{ContextShift, IO, Timer}
+import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import cron4s.Cron
 import cron4s.expr.CronExpr
 import eu.timepit.fs2cron.ScheduledStreams
@@ -9,10 +10,8 @@ import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
 
 import java.time.{Instant, ZoneId, ZoneOffset}
-import scala.concurrent.ExecutionContext
 
 class Cron4sSchedulerTest extends AnyFunSuite with Matchers {
-  private implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
   private val evenSeconds: CronExpr = Cron.unsafeParse("*/2 * * ? * *")
   private def isEven(i: Long): Boolean = i % 2 == 0
   private def instantSeconds(i: Instant): Long = i.getEpochSecond
@@ -37,7 +36,6 @@ class Cron4sSchedulerTest extends AnyFunSuite with Matchers {
   }
 
   test("schedule") {
-    implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
     val everySecond: CronExpr = Cron.unsafeParse("* * * ? * *")
     val s1 = streamsSystemDefault
       .schedule(List(everySecond -> evalInstantNow, evenSeconds -> evalInstantNow))
