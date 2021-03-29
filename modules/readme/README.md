@@ -11,16 +11,13 @@ on [Cron4s][Cron4s] cron expressions.
 ## Examples
 
 ```scala mdoc:silent
-import cats.effect.{ContextShift, IO, Timer}
+import cats.effect.IO
+import cats.effect.unsafe.implicits.global
 import cron4s.Cron
 import eu.timepit.fs2cron.ScheduledStreams
 import eu.timepit.fs2cron.cron4s.Cron4sScheduler
 import fs2.Stream
 import java.time.LocalTime
-import scala.concurrent.ExecutionContext
-
-implicit val timer: Timer[IO] = IO.timer(ExecutionContext.global)
-implicit val ctxShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
 ```
 ```scala mdoc
 val streams = new ScheduledStreams(Cron4sScheduler.systemDefault[IO])
