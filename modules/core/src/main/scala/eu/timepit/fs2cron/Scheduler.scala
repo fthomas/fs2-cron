@@ -23,4 +23,7 @@ import scala.concurrent.duration.FiniteDuration
 trait Scheduler[F[_], Schedule] {
   def fromNowUntilNext(schedule: Schedule): F[FiniteDuration]
   def temporal: Temporal[F]
+
+  final def sleepUntilNext(schedule: Schedule): F[Unit] =
+    temporal.flatMap(fromNowUntilNext(schedule))(temporal.sleep)
 }
