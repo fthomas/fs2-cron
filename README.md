@@ -21,7 +21,7 @@ import java.time.LocalTime
 ```
 ```scala
 val streams = new ScheduledStreams(Cron4sScheduler.systemDefault[IO])
-// streams: ScheduledStreams[IO[A], cron4s.expr.CronExpr] = eu.timepit.fs2cron.ScheduledStreams@44622bac
+// streams: ScheduledStreams[IO[A], cron4s.expr.CronExpr] = eu.timepit.fs2cron.ScheduledStreams@9d7b99c
 
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 // evenSeconds: cron4s.package.CronExpr = CronExpr(
@@ -40,9 +40,9 @@ val scheduled = streams.awakeEvery(evenSeconds) >> printTime
 // scheduled: Stream[IO[x], Unit] = Stream(..)
 
 scheduled.take(3).compile.drain.unsafeRunSync()
-// 15:38:42.253
-// 15:38:44.003
-// 15:38:46.002
+// 16:24:50.256
+// 16:24:52.002
+// 16:24:54.002
 ```
 ```scala
 val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
@@ -62,16 +62,15 @@ val scheduledTasks = streams.schedule(List(
 // scheduledTasks: Stream[IO[A], Unit] = Stream(..)
 
 scheduledTasks.take(9).compile.drain.unsafeRunSync()
-// 15:38:48.004 task 1
-// 15:38:50.003 task 1
-// 15:38:50.004 task 2
-// 15:38:52.003 task 1
-// 15:38:54.002 task 1
-// 15:38:55.004 task 2
-// 15:38:56.003 task 1
-// 15:38:58.003 task 1
-// 15:39:00.001 task 1
-// 15:39:00.005 task 2
+// 16:24:55.003 task 2
+// 16:24:56.003 task 1
+// 16:24:58.002 task 1
+// 16:25:00.002 task 2
+// 16:25:00.002 task 1
+// 16:25:02.002 task 1
+// 16:25:04.003 task 1
+// 16:25:05.003 task 2
+// 16:25:06.002 task 1
 ```
 
 ## Using fs2-cron

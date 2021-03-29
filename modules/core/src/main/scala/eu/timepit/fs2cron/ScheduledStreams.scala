@@ -21,9 +21,7 @@ import fs2.Stream
 
 final class ScheduledStreams[F[_], Schedule](scheduler: Scheduler[F, Schedule]) {
   def sleep(schedule: Schedule): Stream[F, Unit] =
-    Stream
-      .eval(scheduler.fromNowUntilNext(schedule))
-      .flatMap(Stream.sleep[F](_)(scheduler.temporal))
+    Stream.eval(scheduler.sleepUntilNext(schedule))
 
   def awakeEvery(schedule: Schedule): Stream[F, Unit] =
     sleep(schedule).repeat
