@@ -14,26 +14,25 @@ on [Cron4s][Cron4s] cron expressions.
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import cron4s.Cron
-import eu.timepit.fs2cron.ScheduledStreams
 import eu.timepit.fs2cron.cron4s.Cron4sScheduler
 import fs2.Stream
 import java.time.LocalTime
 ```
 ```scala mdoc
-val streams = new ScheduledStreams(Cron4sScheduler.systemDefault[IO])
+val scheduler = Cron4sScheduler.systemDefault[IO]
 
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 
 val printTime = Stream.eval(IO(println(LocalTime.now)))
 
-val scheduled = streams.awakeEvery(evenSeconds) >> printTime
+val scheduled = scheduler.awakeEvery(evenSeconds) >> printTime
 
 scheduled.take(3).compile.drain.unsafeRunSync()
 ```
 ```scala mdoc
 val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
 
-val scheduledTasks = streams.schedule(List(
+val scheduledTasks = scheduler.schedule(List(
   evenSeconds      -> Stream.eval(IO(println(LocalTime.now.toString + " task 1"))),
   everyFiveSeconds -> Stream.eval(IO(println(LocalTime.now.toString + " task 2")))
 ))

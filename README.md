@@ -14,14 +14,13 @@ on [Cron4s][Cron4s] cron expressions.
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
 import cron4s.Cron
-import eu.timepit.fs2cron.ScheduledStreams
 import eu.timepit.fs2cron.cron4s.Cron4sScheduler
 import fs2.Stream
 import java.time.LocalTime
 ```
 ```scala
-val streams = new ScheduledStreams(Cron4sScheduler.systemDefault[IO])
-// streams: ScheduledStreams[IO[A], cron4s.expr.CronExpr] = eu.timepit.fs2cron.ScheduledStreams@2e16be8b
+val scheduler = Cron4sScheduler.systemDefault[IO]
+// scheduler: eu.timepit.fs2cron.Scheduler[IO, cron4s.expr.CronExpr] = eu.timepit.fs2cron.cron4s.Cron4sScheduler$$anon$1@674224b0
 
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 // evenSeconds: cron4s.package.CronExpr = CronExpr(
@@ -36,13 +35,13 @@ val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 val printTime = Stream.eval(IO(println(LocalTime.now)))
 // printTime: Stream[IO, Unit] = Stream(..)
 
-val scheduled = streams.awakeEvery(evenSeconds) >> printTime
+val scheduled = scheduler.awakeEvery(evenSeconds) >> printTime
 // scheduled: Stream[IO[x], Unit] = Stream(..)
 
 scheduled.take(3).compile.drain.unsafeRunSync()
-// 19:56:10.263
-// 19:56:12.003
-// 19:56:14.002
+// 07:41:30.238
+// 07:41:32.002
+// 07:41:34.001
 ```
 ```scala
 val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
@@ -55,22 +54,22 @@ val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
 //   daysOfWeek = *
 // )
 
-val scheduledTasks = streams.schedule(List(
+val scheduledTasks = scheduler.schedule(List(
   evenSeconds      -> Stream.eval(IO(println(LocalTime.now.toString + " task 1"))),
   everyFiveSeconds -> Stream.eval(IO(println(LocalTime.now.toString + " task 2")))
 ))
-// scheduledTasks: Stream[IO[A], Unit] = Stream(..)
+// scheduledTasks: Stream[IO, Unit] = Stream(..)
 
 scheduledTasks.take(9).compile.drain.unsafeRunSync()
-// 19:56:15.004 task 2
-// 19:56:16.002 task 1
-// 19:56:18.002 task 1
-// 19:56:20.003 task 2
-// 19:56:20.003 task 1
-// 19:56:22.002 task 1
-// 19:56:24.002 task 1
-// 19:56:25.002 task 2
-// 19:56:26.003 task 1
+// 07:41:35.003 task 2
+// 07:41:36.003 task 1
+// 07:41:38.002 task 1
+// 07:41:40.002 task 1
+// 07:41:40.002 task 2
+// 07:41:42.001 task 1
+// 07:41:44.002 task 1
+// 07:41:45.002 task 2
+// 07:41:46.002 task 1
 ```
 
 ## Using fs2-cron
