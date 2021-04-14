@@ -144,7 +144,7 @@ lazy val metadataSettings = Def.settings(
 )
 
 lazy val noPublishSettings = Def.settings(
-  skip in publish := true
+  publish / skip := true
 )
 
 lazy val scaladocSettings = Def.settings(
