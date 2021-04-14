@@ -6,7 +6,7 @@ if [ -z "$VERSION" ]; then
 fi
 
 cat << EOF > latestVersion.sbt
-latestVersion in ThisBuild := "$VERSION"
+ThisBuild / latestVersion := "$VERSION"
 EOF
 
 sbt readme/mdoc

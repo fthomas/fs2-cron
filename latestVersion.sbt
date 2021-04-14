@@ -1,1 +1,1 @@
-latestVersion in ThisBuild := "0.7.0"
+ThisBuild / latestVersion := "0.7.0"
