@@ -2,7 +2,6 @@ import com.typesafe.sbt.SbtGit.GitKeys
 import sbtcrossproject.CrossProject
 import sbtcrossproject.CrossType
 import sbtcrossproject.Platform
-import scala.sys.process._
 
 /// variables
 
@@ -13,6 +12,7 @@ val gitHubOwner = "fthomas"
 
 val Scala_2_12 = "2.12.12"
 val Scala_2_13 = "2.13.5"
+val Scala_3 = "3.0.0"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
   "core" -> List(JVMPlatform),
@@ -21,7 +21,7 @@ val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
 
 /// sbt-github-actions configuration
 
-ThisBuild / crossScalaVersions := Seq(Scala_2_12, Scala_2_13)
+ThisBuild / crossScalaVersions := Seq(Scala_2_12, Scala_2_13, Scala_3)
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(
   RefPredicate.Equals(Ref.Branch("master")),
@@ -62,6 +62,7 @@ lazy val root = project
 
 lazy val core = myCrossProject("core")
   .settings(
+    crossScalaVersions += Scala_3,
     libraryDependencies ++= Seq(
       Dependencies.fs2Core
     )
