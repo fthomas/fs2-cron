@@ -16,7 +16,8 @@ val Scala_2_13 = "2.13.6"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
   "core" -> List(JVMPlatform),
-  "cron4s" -> List(JVMPlatform)
+  "cron4s" -> List(JVMPlatform),
+  "calev" -> List(JVMPlatform)
 )
 
 /// sbt-github-actions configuration
@@ -56,6 +57,7 @@ lazy val root = project
   .in(file("."))
   .aggregate(coreJVM)
   .aggregate(cron4sJVM)
+  .aggregate(calevJVM)
   .aggregate(readme)
   .settings(commonSettings)
   .settings(noPublishSettings)
@@ -89,6 +91,26 @@ lazy val cron4s = myCrossProject("cron4s")
   )
 
 lazy val cron4sJVM = cron4s.jvm
+
+lazy val calev = myCrossProject("calev")
+  .dependsOn(core)
+  .settings(
+    libraryDependencies ++= Seq(
+      Dependencies.calevCore,
+      Dependencies.scalaTest % Test
+    ),
+    initialCommands := s"""
+      import $rootPkg._
+      import $rootPkg.calev._
+      import cats.effect.IO
+      import cats.effect.unsafe.implicits.global
+      import com.github.eikek.calev._
+      import fs2.Stream
+      import scala.concurrent.ExecutionContext
+    """
+  )
+
+lazy val calevJVM = calev.jvm
 
 lazy val readme = project
   .in(file("modules/readme"))
