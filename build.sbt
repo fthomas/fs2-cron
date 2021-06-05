@@ -115,7 +115,7 @@ lazy val calevJVM = calev.jvm
 lazy val readme = project
   .in(file("modules/readme"))
   .enablePlugins(MdocPlugin)
-  .dependsOn(cron4sJVM)
+  .dependsOn(cron4sJVM, calevJVM)
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
