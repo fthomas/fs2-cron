@@ -59,7 +59,7 @@ jobs:
         uses: codecov/codecov-action@v1
 
       - name: Compress target directories
-        run: tar cf targets.tar target modules/core/.jvm/target modules/cron4s/.jvm/target modules/readme/target project/target
+        run: tar cf targets.tar target modules/cron4s/.jvm/target modules/readme/target modules/core/.jvm/target modules/calev/.jvm/target project/target
 
       - name: Upload target directories
         uses: actions/upload-artifact@v2
