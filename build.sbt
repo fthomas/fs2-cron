@@ -80,13 +80,11 @@ lazy val cron4s = myCrossProject("cron4s")
     ),
     initialCommands := s"""
       import $rootPkg._
-      import cats.effect.{ContextShift, IO, Timer}
-      import cron4s.Cron
+      import cats.effect.unsafe.implicits.global
+      import cats.effect.IO
+      import _root_.cron4s.Cron
       import fs2.Stream
       import scala.concurrent.ExecutionContext
-
-      implicit val ioContextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-      implicit val ioTimer: Timer[IO] = IO.timer(ExecutionContext.global)
     """
   )
 
