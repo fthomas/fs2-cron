@@ -16,7 +16,8 @@ val Scala_2_13 = "2.13.6"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
   "core" -> List(JVMPlatform),
-  "cron4s" -> List(JVMPlatform)
+  "cron4s" -> List(JVMPlatform),
+  "calev" -> List(JVMPlatform)
 )
 
 /// sbt-github-actions configuration
@@ -56,6 +57,7 @@ lazy val root = project
   .in(file("."))
   .aggregate(coreJVM)
   .aggregate(cron4sJVM)
+  .aggregate(calevJVM)
   .aggregate(readme)
   .settings(commonSettings)
   .settings(noPublishSettings)
@@ -78,22 +80,40 @@ lazy val cron4s = myCrossProject("cron4s")
     ),
     initialCommands := s"""
       import $rootPkg._
-      import cats.effect.{ContextShift, IO, Timer}
-      import cron4s.Cron
+      import cats.effect.unsafe.implicits.global
+      import cats.effect.IO
+      import _root_.cron4s.Cron
       import fs2.Stream
       import scala.concurrent.ExecutionContext
-
-      implicit val ioContextShift: ContextShift[IO] = IO.contextShift(ExecutionContext.global)
-      implicit val ioTimer: Timer[IO] = IO.timer(ExecutionContext.global)
     """
   )
 
 lazy val cron4sJVM = cron4s.jvm
 
+lazy val calev = myCrossProject("calev")
+  .dependsOn(core)
+  .settings(
+    libraryDependencies ++= Seq(
+      Dependencies.calevCore,
+      Dependencies.scalaTest % Test
+    ),
+    initialCommands := s"""
+      import $rootPkg._
+      import $rootPkg.calev._
+      import cats.effect.IO
+      import cats.effect.unsafe.implicits.global
+      import com.github.eikek.calev._
+      import fs2.Stream
+      import scala.concurrent.ExecutionContext
+    """
+  )
+
+lazy val calevJVM = calev.jvm
+
 lazy val readme = project
   .in(file("modules/readme"))
   .enablePlugins(MdocPlugin)
-  .dependsOn(cron4sJVM)
+  .dependsOn(cron4sJVM, calevJVM)
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
