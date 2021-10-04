@@ -9,9 +9,9 @@ name: Continuous Integration
 
 on:
   pull_request:
-    branches: ['*']
+    branches: ['**']
   push:
-    branches: ['*']
+    branches: ['**']
     tags: [v*]
 
 env:
@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        scala: [2.12.12, 2.13.5, 3.0.0]
+        scala: [2.12.12, 2.13.6, 3.0.2]
         java: [adopt@1.8]
     runs-on: ${{ matrix.os }}
     steps:
@@ -33,7 +33,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Java and Scala
-        uses: olafurpg/setup-scala@v10
+        uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ matrix.java }}
 
@@ -59,7 +59,7 @@ jobs:
         uses: codecov/codecov-action@v1
 
       - name: Compress target directories
-        run: tar cf targets.tar target modules/core/.jvm/target modules/cron4s/.jvm/target modules/readme/target project/target
+        run: tar cf targets.tar target modules/cron4s/.jvm/target modules/readme/target modules/core/.jvm/target modules/calev/.jvm/target project/target
 
       - name: Upload target directories
         uses: actions/upload-artifact@v2
@@ -74,7 +74,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        scala: [2.12.13]
+        scala: [2.12.14]
         java: [adopt@1.8]
     runs-on: ${{ matrix.os }}
     steps:
@@ -84,7 +84,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Java and Scala
-        uses: olafurpg/setup-scala@v10
+        uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ matrix.java }}
 
@@ -110,22 +110,22 @@ jobs:
           tar xf targets.tar
           rm targets.tar
 
-      - name: Download target directories (2.13.5)
+      - name: Download target directories (2.13.6)
         uses: actions/download-artifact@v2
         with:
-          name: target-${{ matrix.os }}-2.13.5-${{ matrix.java }}
+          name: target-${{ matrix.os }}-2.13.6-${{ matrix.java }}
 
-      - name: Inflate target directories (2.13.5)
+      - name: Inflate target directories (2.13.6)
         run: |
           tar xf targets.tar
           rm targets.tar
 
-      - name: Download target directories (3.0.0)
+      - name: Download target directories (3.0.2)
         uses: actions/download-artifact@v2
         with:
-          name: target-${{ matrix.os }}-3.0.0-${{ matrix.java }}
+          name: target-${{ matrix.os }}-3.0.2-${{ matrix.java }}
 
-      - name: Inflate target directories (3.0.0)
+      - name: Inflate target directories (3.0.2)
         run: |
           tar xf targets.tar
           rm targets.tar
