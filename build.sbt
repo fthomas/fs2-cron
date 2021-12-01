@@ -1,8 +1,6 @@
 import com.typesafe.sbt.SbtGit.GitKeys
-import sbtcrossproject.CrossProject
-import sbtcrossproject.CrossType
-import sbtcrossproject.Platform
-import scala.sys.process._
+import sbtcrossproject.{CrossProject, CrossType, Platform}
+import sbtghactions.JavaSpec.Distribution.Adopt
 
 /// variables
 
@@ -40,7 +38,7 @@ ThisBuild / githubWorkflowPublish := Seq(
     )
   )
 )
-ThisBuild / githubWorkflowJavaVersions := Seq("adopt@1.8")
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec(Adopt, "8"))
 ThisBuild / githubWorkflowBuild :=
   Seq(
     WorkflowStep.Sbt(List("validate"), name = Some("Build project")),
