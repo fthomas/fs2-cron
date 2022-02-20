@@ -76,11 +76,15 @@ lazy val coreJVM = core.jvm
 lazy val cron4s = myCrossProject("cron4s")
   .dependsOn(core)
   .settings(
-    crossScalaVersions := List(Scala_2_12, Scala_2_13),
+    crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3),
     libraryDependencies ++= Seq(
-      Dependencies.cron4s,
+      Dependencies.cron4s
+        .cross(CrossVersion.for3Use2_13)
+        .excludeAll(ExclusionRule("org.typelevel")),
+      Dependencies.fs2Core,
       Dependencies.scalaTest % Test
     ),
+    publish / skip := scalaBinaryVersion.value == "3",
     initialCommands := s"""
       import $rootPkg._
       import cats.effect.unsafe.implicits.global
@@ -113,7 +117,7 @@ lazy val calev = myCrossProject("calev")
   )
 
 lazy val calevJVM = calev.jvm
-
+val runMdoc2 = taskKey[Unit]("Run mdoc only for scala 2.x")
 lazy val readme = project
   .in(file("modules/readme"))
   .enablePlugins(MdocPlugin)
@@ -122,6 +126,12 @@ lazy val readme = project
   .settings(noPublishSettings)
   .settings(
     crossScalaVersions := List(Scala_2_12, Scala_2_13),
+    runMdoc2 := Def.taskDyn {
+      val t = mdoc.inputTaskValue
+      if ((coreJVM / scalaBinaryVersion).value == "3")
+        Def.task(streams.value.log("readme").info("Skip readme generation"))
+      else Def.inputTask(t.evaluated).toTask("")
+    }.value,
     scalacOptions -= "-Xfatal-warnings",
     mdocIn := baseDirectory.value / "README.md",
     mdocOut := (LocalRootProject / baseDirectory).value / "README.md",
@@ -201,7 +211,7 @@ addCommandsAlias(
     "coverage",
     "test",
     "coverageReport",
-    "readme/mdoc",
+    "readme/runMdoc2",
     "doc",
     "package",
     "packageSrc"
