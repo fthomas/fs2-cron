@@ -9,8 +9,9 @@ val projectName = "fs2-cron"
 val rootPkg = s"$groupId.${projectName.replace("-", "")}"
 val gitHubOwner = "fthomas"
 
-val Scala_2_12 = "2.12.12"
+val Scala_2_12 = "2.12.15"
 val Scala_2_13 = "2.13.8"
+val Scala_3 = "3.1.1"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
   "core" -> List(JVMPlatform),
@@ -19,8 +20,7 @@ val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
 )
 
 /// sbt-github-actions configuration
-
-ThisBuild / crossScalaVersions := Seq(Scala_2_12, Scala_2_13)
+ThisBuild / crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3)
 ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(
   RefPredicate.Equals(Ref.Branch("master")),
@@ -59,9 +59,13 @@ lazy val root = project
   .aggregate(readme)
   .settings(commonSettings)
   .settings(noPublishSettings)
+  .settings(
+    crossScalaVersions := Nil
+  )
 
 lazy val core = myCrossProject("core")
   .settings(
+    crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3),
     libraryDependencies ++= Seq(
       Dependencies.fs2Core
     )
@@ -72,10 +76,15 @@ lazy val coreJVM = core.jvm
 lazy val cron4s = myCrossProject("cron4s")
   .dependsOn(core)
   .settings(
+    crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3),
     libraryDependencies ++= Seq(
-      Dependencies.cron4s,
+      Dependencies.cron4s
+        .cross(CrossVersion.for3Use2_13)
+        .excludeAll(ExclusionRule("org.typelevel")),
+      Dependencies.fs2Core,
       Dependencies.scalaTest % Test
     ),
+    publish / skip := scalaBinaryVersion.value == "3",
     initialCommands := s"""
       import $rootPkg._
       import cats.effect.unsafe.implicits.global
@@ -91,6 +100,7 @@ lazy val cron4sJVM = cron4s.jvm
 lazy val calev = myCrossProject("calev")
   .dependsOn(core)
   .settings(
+    crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3),
     libraryDependencies ++= Seq(
       Dependencies.calevCore,
       Dependencies.scalaTest % Test
@@ -107,7 +117,7 @@ lazy val calev = myCrossProject("calev")
   )
 
 lazy val calevJVM = calev.jvm
-
+val runMdoc2 = taskKey[Unit]("Run mdoc only for scala 2.x")
 lazy val readme = project
   .in(file("modules/readme"))
   .enablePlugins(MdocPlugin)
@@ -115,6 +125,13 @@ lazy val readme = project
   .settings(commonSettings)
   .settings(noPublishSettings)
   .settings(
+    crossScalaVersions := List(Scala_2_12, Scala_2_13),
+    runMdoc2 := Def.taskDyn {
+      val t = mdoc.inputTaskValue
+      if ((coreJVM / scalaBinaryVersion).value == "3")
+        Def.task(streams.value.log("readme").info("Skip readme generation"))
+      else Def.inputTask(t.evaluated).toTask("")
+    }.value,
     scalacOptions -= "-Xfatal-warnings",
     mdocIn := baseDirectory.value / "README.md",
     mdocOut := (LocalRootProject / baseDirectory).value / "README.md",
@@ -141,7 +158,7 @@ lazy val commonSettings = Def.settings(
 
 lazy val compileSettings = Def.settings(
   scalaVersion := Scala_2_13,
-  crossScalaVersions := List(Scala_2_12, Scala_2_13)
+  coverageEnabled := false
 )
 
 lazy val metadataSettings = Def.settings(
@@ -194,7 +211,7 @@ addCommandsAlias(
     "coverage",
     "test",
     "coverageReport",
-    "readme/mdoc",
+    "readme/runMdoc2",
     "doc",
     "package",
     "packageSrc"

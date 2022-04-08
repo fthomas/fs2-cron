@@ -9,6 +9,9 @@
 on [Cron4s][Cron4s] cron expressions or [Calev][Calev] calendar
 events.
 
+It is provided for Scala 2.12, 2.13 and `fs2-cron-calev` also for
+Scala 3.
+
 ## Examples
 
 ```scala mdoc:silent

@@ -20,6 +20,7 @@ import cats.effect.{Sync, Temporal}
 import cats.syntax.all._
 import cron4s.expr.CronExpr
 import cron4s.lib.javatime._
+import cron4s.syntax.cron._
 import eu.timepit.fs2cron.Scheduler
 
 import java.time.temporal.ChronoUnit
