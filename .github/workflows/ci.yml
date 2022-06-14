@@ -24,7 +24,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         scala: [2.12.15, 2.13.8, 3.1.1]
-        java: [adopt-hotspot@8]
+        java: [temurin@8]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout current branch (full)
@@ -32,12 +32,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Java (adopt-hotspot@8)
-        if: matrix.java == 'adopt-hotspot@8'
+      - name: Download Java (temurin@8)
+        id: download-java-temurin-8
+        if: matrix.java == 'temurin@8'
+        uses: typelevel/download-java@v1
+        with:
+          distribution: temurin
+          java-version: 8
+
+      - name: Setup Java (temurin@8)
+        if: matrix.java == 'temurin@8'
         uses: actions/setup-java@v2
         with:
-          distribution: adopt-hotspot
+          distribution: jdkfile
           java-version: 8
+          jdkFile: ${{ steps.download-java-temurin-8.outputs.jdkFile }}
 
       - name: Cache sbt
         uses: actions/cache@v2
@@ -52,21 +61,27 @@ jobs:
           key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
       - name: Check that workflows are up to date
-        run: sbt ++${{ matrix.scala }} githubWorkflowCheck
+        run: sbt '++${{ matrix.scala }}' 'project /' githubWorkflowCheck
 
       - name: Build project
-        run: sbt ++${{ matrix.scala }} validate
+        run: sbt '++${{ matrix.scala }}' validate
 
       - name: Codecov
         uses: codecov/codecov-action@v1
 
+      - name: Make target directories
+        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
+        run: mkdir -p target modules/cron4s/.jvm/target modules/readme/target modules/core/.jvm/target modules/calev/.jvm/target project/target
+
       - name: Compress target directories
+        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
         run: tar cf targets.tar target modules/cron4s/.jvm/target modules/readme/target modules/core/.jvm/target modules/calev/.jvm/target project/target
 
       - name: Upload target directories
+        if: github.event_name != 'pull_request' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/v'))
         uses: actions/upload-artifact@v2
         with:
-          name: target-${{ matrix.os }}-${{ matrix.scala }}-${{ matrix.java }}
+          name: target-${{ matrix.os }}-${{ matrix.java }}-${{ matrix.scala }}
           path: targets.tar
 
   publish:
@@ -77,7 +92,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         scala: [2.12.15]
-        java: [adopt-hotspot@8]
+        java: [temurin@8]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout current branch (full)
@@ -85,12 +100,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Java (adopt-hotspot@8)
-        if: matrix.java == 'adopt-hotspot@8'
+      - name: Download Java (temurin@8)
+        id: download-java-temurin-8
+        if: matrix.java == 'temurin@8'
+        uses: typelevel/download-java@v1
+        with:
+          distribution: temurin
+          java-version: 8
+
+      - name: Setup Java (temurin@8)
+        if: matrix.java == 'temurin@8'
         uses: actions/setup-java@v2
         with:
-          distribution: adopt-hotspot
+          distribution: jdkfile
           java-version: 8
+          jdkFile: ${{ steps.download-java-temurin-8.outputs.jdkFile }}
 
       - name: Cache sbt
         uses: actions/cache@v2
@@ -107,7 +131,7 @@ jobs:
       - name: Download target directories (2.12.15)
         uses: actions/download-artifact@v2
         with:
-          name: target-${{ matrix.os }}-2.12.15-${{ matrix.java }}
+          name: target-${{ matrix.os }}-${{ matrix.java }}-2.12.15
 
       - name: Inflate target directories (2.12.15)
         run: |
@@ -117,7 +141,7 @@ jobs:
       - name: Download target directories (2.13.8)
         uses: actions/download-artifact@v2
         with:
-          name: target-${{ matrix.os }}-2.13.8-${{ matrix.java }}
+          name: target-${{ matrix.os }}-${{ matrix.java }}-2.13.8
 
       - name: Inflate target directories (2.13.8)
         run: |
@@ -127,7 +151,7 @@ jobs:
       - name: Download target directories (3.1.1)
         uses: actions/download-artifact@v2
         with:
-          name: target-${{ matrix.os }}-3.1.1-${{ matrix.java }}
+          name: target-${{ matrix.os }}-${{ matrix.java }}-3.1.1
 
       - name: Inflate target directories (3.1.1)
         run: |
