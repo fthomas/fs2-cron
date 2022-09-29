@@ -10,7 +10,7 @@ val rootPkg = s"$groupId.${projectName.replace("-", "")}"
 val gitHubOwner = "fthomas"
 
 val Scala_2_12 = "2.12.17"
-val Scala_2_13 = "2.13.8"
+val Scala_2_13 = "2.13.9"
 val Scala_3 = "3.2.0"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
