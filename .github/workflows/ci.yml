@@ -64,7 +64,7 @@ jobs:
         run: sbt githubWorkflowCheck
 
       - name: Build project
-        run: sbt '++${{ matrix.scala }}' validate
+        run: sbt '++ ${{ matrix.scala }}' validate
 
       - name: Codecov
         uses: codecov/codecov-action@v1
