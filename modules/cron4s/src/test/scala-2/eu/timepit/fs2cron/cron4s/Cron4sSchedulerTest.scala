@@ -37,12 +37,11 @@ class Cron4sSchedulerTest extends AnyFunSuite with Matchers {
       .schedule(List(everySecond -> evalInstantNow, evenSeconds -> evalInstantNow))
       .map(instantSeconds)
 
-    val testIO = s1.take(3).compile.toList.map { seconds =>
-      seconds.count(isEven) shouldBe 2
-      seconds.count(!isEven(_)) shouldBe 1
-    }
-
-    testIO.unsafeRunSync()
+    (for {
+      seconds <- s1.take(3).compile.toList
+      _ <- IO(seconds.count(isEven) shouldBe 2)
+      _ <- IO(seconds.count(!isEven(_)) shouldBe 1)
+    } yield ()).unsafeRunSync()
   }
 
   test("timezones") {
