@@ -42,7 +42,7 @@ ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec(Temurin, "8"))
 ThisBuild / githubWorkflowBuild :=
   Seq(
     WorkflowStep.Sbt(List("validate"), name = Some("Build project")),
-    WorkflowStep.Use(UseRef.Public("codecov", "codecov-action", "v1"), name = Some("Codecov"))
+    WorkflowStep.Use(UseRef.Public("codecov", "codecov-action", "v3"), name = Some("Codecov"))
   )
 ThisBuild / mergifyPrRules := {
   val authorCondition = MergifyCondition.Custom("author=scala-steward")
@@ -172,8 +172,7 @@ lazy val commonSettings = Def.settings(
 )
 
 lazy val compileSettings = Def.settings(
-  scalaVersion := Scala_2_13,
-  coverageEnabled := false
+  scalaVersion := Scala_2_13
 )
 
 lazy val metadataSettings = Def.settings(
