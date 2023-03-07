@@ -13,7 +13,7 @@ val Scala_2_13 = "2.13.10"
 val Scala_3 = "3.2.2"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
-  "core" -> List(JVMPlatform),
+  "core" -> List(JVMPlatform, JSPlatform),
   "cron4s" -> List(JVMPlatform),
   "calev" -> List(JVMPlatform)
 )
@@ -28,6 +28,7 @@ ThisBuild / developers := List(
   tlGitHubDev("fthomas", "Frank S. Thomas")
 )
 ThisBuild / tlSkipIrrelevantScalas := true
+ThisBuild / scalaVersion := Scala_2_13
 ThisBuild / crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3)
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec(Temurin, "8"))
 ThisBuild / tlCiReleaseBranches := Seq("master")
@@ -102,7 +103,6 @@ lazy val calev = myCrossProject("calev")
 
 lazy val calevJVM = calev.jvm
 
-val runMdoc2 = taskKey[Unit]("Run mdoc only for scala 2.x")
 lazy val readme = project
   .in(file("modules/readme"))
   .enablePlugins(MdocPlugin, NoPublishPlugin)
@@ -110,12 +110,6 @@ lazy val readme = project
   .settings(commonSettings)
   .settings(
     crossScalaVersions := List(Scala_2_12, Scala_2_13),
-    runMdoc2 := Def.taskDyn {
-      val t = mdoc.inputTaskValue
-      if ((coreJVM / scalaBinaryVersion).value == "3")
-        Def.task(streams.value.log("readme").info("Skip readme generation"))
-      else Def.inputTask(t.evaluated).toTask("")
-    }.value,
     scalacOptions -= "-Xfatal-warnings",
     mdocIn := baseDirectory.value / "README.md",
     mdocOut := (LocalRootProject / baseDirectory).value / "README.md",
