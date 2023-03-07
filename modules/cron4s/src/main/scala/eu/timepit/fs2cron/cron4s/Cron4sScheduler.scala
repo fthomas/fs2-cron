@@ -17,16 +17,12 @@
 package eu.timepit.fs2cron.cron4s
 
 import cats.effect.{Sync, Temporal}
-import cats.syntax.all._
 import cron4s.expr.CronExpr
 import cron4s.lib.javatime._
 import cron4s.syntax.cron._
-import eu.timepit.fs2cron.Scheduler
+import eu.timepit.fs2cron.{Scheduler, ZonedDateTimeScheduler}
 
-import java.time.temporal.ChronoUnit
 import java.time.{ZoneId, ZoneOffset, ZonedDateTime}
-import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.FiniteDuration
 
 object Cron4sScheduler {
   def systemDefault[F[_]](implicit temporal: Temporal[F], F: Sync[F]): Scheduler[F, CronExpr] =
@@ -36,23 +32,14 @@ object Cron4sScheduler {
     from(F.pure(ZoneOffset.UTC))
 
   def from[F[_]](zoneId: F[ZoneId])(implicit F: Temporal[F]): Scheduler[F, CronExpr] =
-    new Scheduler[F, CronExpr] {
-      override def fromNowUntilNext(schedule: CronExpr): F[FiniteDuration] =
-        now.flatMap { from =>
-          schedule.next(from) match {
-            case Some(next) =>
-              val durationInMillis = from.until(next, ChronoUnit.MILLIS)
-              F.pure(FiniteDuration(durationInMillis, TimeUnit.MILLISECONDS))
-            case None =>
-              val msg = s"Could not calculate the next date-time from $from " +
-                s"given the cron expression '$schedule'. This should never happen."
-              F.raiseError(new Throwable(msg))
-          }
+    new ZonedDateTimeScheduler[F, CronExpr](zoneId) {
+      override def next(from: ZonedDateTime, schedule: CronExpr): F[ZonedDateTime] =
+        schedule.next(from) match {
+          case Some(next) => F.pure(next)
+          case None =>
+            val msg = s"Could not calculate the next date-time from $from " +
+              s"given the cron expression '$schedule'. This should never happen."
+            F.raiseError(new Throwable(msg))
         }
-
-      override def temporal: Temporal[F] = F
-
-      private val now: F[ZonedDateTime] =
-        (F.realTimeInstant, zoneId).mapN(_.atZone(_))
     }
 }

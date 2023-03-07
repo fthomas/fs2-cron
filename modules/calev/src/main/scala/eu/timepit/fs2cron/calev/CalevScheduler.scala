@@ -17,14 +17,10 @@
 package eu.timepit.fs2cron.calev
 
 import cats.effect.{Sync, Temporal}
-import cats.syntax.all._
-import eu.timepit.fs2cron.Scheduler
 import com.github.eikek.calev.CalEvent
+import eu.timepit.fs2cron.{Scheduler, ZonedDateTimeScheduler}
 
-import java.time.temporal.ChronoUnit
 import java.time.{ZoneId, ZoneOffset, ZonedDateTime}
-import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.FiniteDuration
 
 object CalevScheduler {
   def systemDefault[F[_]](implicit temporal: Temporal[F], F: Sync[F]): Scheduler[F, CalEvent] =
@@ -34,23 +30,14 @@ object CalevScheduler {
     from(F.pure(ZoneOffset.UTC))
 
   def from[F[_]](zoneId: F[ZoneId])(implicit F: Temporal[F]): Scheduler[F, CalEvent] =
-    new Scheduler[F, CalEvent] {
-      override def fromNowUntilNext(schedule: CalEvent): F[FiniteDuration] =
-        now.flatMap { from =>
-          schedule.nextElapse(from) match {
-            case Some(next) =>
-              val durationInMillis = from.until(next, ChronoUnit.MILLIS)
-              F.pure(FiniteDuration(durationInMillis, TimeUnit.MILLISECONDS))
-            case None =>
-              val msg = s"Could not calculate the next date-time from $from " +
-                s"given the calendar event expression '${schedule.asString}'. This should never happen."
-              F.raiseError(new Throwable(msg))
-          }
+    new ZonedDateTimeScheduler[F, CalEvent](zoneId) {
+      override def next(from: ZonedDateTime, schedule: CalEvent): F[ZonedDateTime] =
+        schedule.nextElapse(from) match {
+          case Some(next) => F.pure(next)
+          case None =>
+            val msg = s"Could not calculate the next date-time from $from " +
+              s"given the calendar event expression '${schedule.asString}'. This should never happen."
+            F.raiseError(new Throwable(msg))
         }
-
-      override def temporal: Temporal[F] = F
-
-      private val now: F[ZonedDateTime] =
-        (F.realTimeInstant, zoneId).mapN(_.atZone(_))
     }
 }
