@@ -20,12 +20,14 @@ val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
 
 /// global settings
 
+ThisBuild / organization := groupId
 ThisBuild / tlBaseVersion := "0.8"
 ThisBuild / startYear := Some(2018)
 ThisBuild / licenses := Seq(License.Apache2)
 ThisBuild / developers := List(
   tlGitHubDev("fthomas", "Frank S. Thomas")
 )
+ThisBuild / tlSkipIrrelevantScalas := true
 ThisBuild / crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3)
 ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec(Temurin, "8"))
 ThisBuild / tlCiReleaseBranches := Seq("master")
@@ -143,13 +145,7 @@ lazy val compileSettings = Def.settings(
 )
 
 lazy val metadataSettings = Def.settings(
-  name := projectName,
-  organization := groupId,
   headerLicense := Some(HeaderLicense.ALv2("2018-2021", s"$projectName contributors"))
-)
-
-lazy val noPublishSettings = Def.settings(
-  publish / skip := true
 )
 
 /// commands
