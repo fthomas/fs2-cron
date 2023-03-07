@@ -21,6 +21,8 @@ val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
 /// global settings
 
 ThisBuild / tlBaseVersion := "0.8"
+ThisBuild / startYear := Some(2018)
+ThisBuild / licenses := Seq(License.Apache2)
 ThisBuild / developers := List(
   tlGitHubDev("fthomas", "Frank S. Thomas")
 )
@@ -101,10 +103,9 @@ lazy val calevJVM = calev.jvm
 val runMdoc2 = taskKey[Unit]("Run mdoc only for scala 2.x")
 lazy val readme = project
   .in(file("modules/readme"))
-  .enablePlugins(MdocPlugin)
-  .dependsOn(cron4sJVM, calevJVM)
+  .enablePlugins(MdocPlugin, NoPublishPlugin)
+  .dependsOn(calevJVM, cron4sJVM)
   .settings(commonSettings)
-  .settings(noPublishSettings)
   .settings(
     crossScalaVersions := List(Scala_2_12, Scala_2_13),
     runMdoc2 := Def.taskDyn {
@@ -144,9 +145,6 @@ lazy val compileSettings = Def.settings(
 lazy val metadataSettings = Def.settings(
   name := projectName,
   organization := groupId,
-  homepage := Some(url(s"https://github.com/$gitHubOwner/$projectName")),
-  startYear := Some(2018),
-  licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
   headerLicense := Some(HeaderLicense.ALv2("2018-2021", s"$projectName contributors"))
 )
 
@@ -162,7 +160,7 @@ def addCommandsAlias(name: String, cmds: Seq[String]) =
 addCommandsAlias(
   "fmt",
   Seq(
-    "headerCreate",
+    "headerCreateAll",
     "scalafmtAll",
     "scalafmtSbt"
   )
