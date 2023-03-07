@@ -113,7 +113,7 @@ lazy val readme = project
     mdocIn := baseDirectory.value / "README.md",
     mdocOut := (LocalRootProject / baseDirectory).value / "README.md",
     mdocVariables := Map(
-      "VERSION" -> latestVersion.value
+      "VERSION" -> tlLatestVersion.value.get
     )
   )
 
