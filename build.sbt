@@ -13,7 +13,7 @@ val Scala_2_13 = "2.13.10"
 val Scala_3 = "3.2.2"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
-  "core" -> List(JVMPlatform, JSPlatform),
+  "core" -> List(JVMPlatform),
   "cron4s" -> List(JVMPlatform),
   "calev" -> List(JVMPlatform)
 )
@@ -30,7 +30,6 @@ ThisBuild / developers := List(
 ThisBuild / tlSkipIrrelevantScalas := true
 ThisBuild / scalaVersion := Scala_2_13
 ThisBuild / crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3)
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec(Temurin, "8"))
 ThisBuild / tlCiReleaseBranches := Seq("master")
 ThisBuild / mergifyPrRules := {
   val authorCondition = MergifyCondition.Custom("author=scala-steward")
