@@ -39,10 +39,11 @@ ThisBuild / githubWorkflowBuild ++= Seq(
   ),
   WorkflowStep.Sbt(
     commands = List("coverage", "test", "coverageReport"),
-    name = Some("Generate coverage report")
+    name = Some("Generate coverage report"),
+    cond = Some(s"matrix.scala != '$Scala_3'")
   ),
   WorkflowStep.Use(
-    UseRef.Public("codecov", "codecov-action", "v3"),
+    ref = UseRef.Public("codecov", "codecov-action", "v3"),
     name = Some("Codecov")
   )
 )
