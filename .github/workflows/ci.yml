@@ -88,6 +88,12 @@ jobs:
         if: matrix.scala != '3.2.2'
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' readme/mdoc
 
+      - name: Generate coverage report
+        run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' coverage test coverageReport
+
+      - name: Codecov
+        uses: codecov/codecov-action@v3
+
       - name: Make target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/master')
         run: mkdir -p target .js/target modules/cron4s/.jvm/target .jvm/target .native/target modules/readme/target modules/core/.jvm/target modules/calev/.jvm/target project/target

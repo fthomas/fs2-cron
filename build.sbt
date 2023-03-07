@@ -31,10 +31,20 @@ ThisBuild / tlSkipIrrelevantScalas := true
 ThisBuild / scalaVersion := Scala_2_13
 ThisBuild / crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3)
 ThisBuild / tlCiReleaseBranches := Seq("master")
-ThisBuild / githubWorkflowBuild += WorkflowStep.Sbt(
-  commands = List("readme/mdoc"),
-  name = Some("Check README"),
-  cond = Some(s"matrix.scala != '$Scala_3'")
+ThisBuild / githubWorkflowBuild ++= Seq(
+  WorkflowStep.Sbt(
+    commands = List("readme/mdoc"),
+    name = Some("Check README"),
+    cond = Some(s"matrix.scala != '$Scala_3'")
+  ),
+  WorkflowStep.Sbt(
+    commands = List("coverage", "test", "coverageReport"),
+    name = Some("Generate coverage report")
+  ),
+  WorkflowStep.Use(
+    UseRef.Public("codecov", "codecov-action", "v3"),
+    name = Some("Codecov")
+  )
 )
 ThisBuild / mergifyPrRules := {
   val authorCondition = MergifyCondition.Custom("author=scala-steward")
