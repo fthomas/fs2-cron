@@ -84,7 +84,7 @@ jobs:
         if: matrix.java == 'temurin@8' && matrix.os == 'ubuntu-latest'
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' doc
 
-      - name: Compile README.md
+      - name: Check README
         if: matrix.scala != '3.2.2'
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' readme/mdoc
 
