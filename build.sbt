@@ -31,6 +31,11 @@ ThisBuild / tlSkipIrrelevantScalas := true
 ThisBuild / scalaVersion := Scala_2_13
 ThisBuild / crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3)
 ThisBuild / tlCiReleaseBranches := Seq("master")
+ThisBuild / githubWorkflowBuild += WorkflowStep.Sbt(
+  commands = List("readme/mdoc"),
+  name = Some("Compile README.md"),
+  cond = Some(s"$${{ matrix.scala }} != '$Scala_3'")
+)
 ThisBuild / mergifyPrRules := {
   val authorCondition = MergifyCondition.Custom("author=scala-steward")
   Seq(
