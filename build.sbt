@@ -34,7 +34,7 @@ ThisBuild / tlCiReleaseBranches := Seq("master")
 ThisBuild / githubWorkflowBuild += WorkflowStep.Sbt(
   commands = List("readme/mdoc"),
   name = Some("Compile README.md"),
-  cond = Some(s"$${{ matrix.scala }} != '$Scala_3'")
+  cond = Some(s"matrix.scala != '$Scala_3'")
 )
 ThisBuild / mergifyPrRules := {
   val authorCondition = MergifyCondition.Custom("author=scala-steward")

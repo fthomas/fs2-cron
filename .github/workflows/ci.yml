@@ -85,7 +85,7 @@ jobs:
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' doc
 
       - name: Compile README.md
-        if: ${{ matrix.scala }} != '3.2.2'
+        if: matrix.scala != '3.2.2'
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' readme/mdoc
 
       - name: Make target directories
