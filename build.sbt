@@ -1,5 +1,4 @@
 import sbtcrossproject.{CrossProject, CrossType, Platform}
-import org.typelevel.sbt.gha.JavaSpec.Distribution.Temurin
 
 /// variables
 
@@ -13,9 +12,10 @@ val Scala_2_13 = "2.13.10"
 val Scala_3 = "3.2.2"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
+  "calev" -> List(JVMPlatform),
   "core" -> List(JVMPlatform),
   "cron4s" -> List(JVMPlatform),
-  "calev" -> List(JVMPlatform)
+  "cron-utils" -> List(JVMPlatform)
 )
 
 /// global settings
@@ -66,7 +66,7 @@ ThisBuild / mergifyPrRules := {
 /// projects
 
 lazy val root = tlCrossRootProject
-  .aggregate(calev, core, cron4s, readme)
+  .aggregate(calev, core, cron4s, cronUtils, readme)
 
 lazy val core = myCrossProject("core")
   .settings(
@@ -75,35 +75,12 @@ lazy val core = myCrossProject("core")
     )
   )
 
-lazy val coreJVM = core.jvm
-
-lazy val cron4s = myCrossProject("cron4s")
-  .dependsOn(core)
-  .settings(
-    crossScalaVersions := List(Scala_2_12, Scala_2_13),
-    libraryDependencies ++= Seq(
-      Dependencies.cron4s,
-      Dependencies.fs2Core,
-      Dependencies.scalaTest % Test
-    ),
-    initialCommands := s"""
-      import $rootPkg._
-      import cats.effect.unsafe.implicits.global
-      import cats.effect.IO
-      import _root_.cron4s.Cron
-      import fs2.Stream
-      import scala.concurrent.ExecutionContext
-    """
-  )
-
-lazy val cron4sJVM = cron4s.jvm
-
 lazy val calev = myCrossProject("calev")
   .dependsOn(core)
   .settings(
     libraryDependencies ++= Seq(
       Dependencies.calevCore,
-      Dependencies.scalaTest % Test
+      Dependencies.munitCatsEffect % Test
     ),
     initialCommands := s"""
       import $rootPkg._
@@ -116,12 +93,42 @@ lazy val calev = myCrossProject("calev")
     """
   )
 
-lazy val calevJVM = calev.jvm
+lazy val cron4s = myCrossProject("cron4s")
+  .dependsOn(core)
+  .settings(
+    crossScalaVersions := List(Scala_2_12, Scala_2_13),
+    libraryDependencies ++= Seq(
+      Dependencies.cron4s,
+      Dependencies.munitCatsEffect % Test
+    ),
+    initialCommands := s"""
+      import $rootPkg._
+      import cats.effect.unsafe.implicits.global
+      import cats.effect.IO
+      import _root_.cron4s.Cron
+      import fs2.Stream
+      import scala.concurrent.ExecutionContext
+    """
+  )
+
+lazy val cronUtils = myCrossProject("cron-utils")
+  .dependsOn(core)
+  .settings(
+    libraryDependencies ++= Seq(
+      Dependencies.cronUtils,
+      Dependencies.munitCatsEffect % Test
+    ),
+    tlVersionIntroduced := Map(
+      "2.12" -> "0.8.2",
+      "2.13" -> "0.8.2",
+      "3" -> "0.8.2"
+    )
+  )
 
 lazy val readme = project
   .in(file("modules/readme"))
   .enablePlugins(MdocPlugin, NoPublishPlugin)
-  .dependsOn(calevJVM, cron4sJVM)
+  .dependsOn(calev.jvm, cron4s.jvm)
   .settings(commonSettings)
   .settings(
     crossScalaVersions := List(Scala_2_12, Scala_2_13),

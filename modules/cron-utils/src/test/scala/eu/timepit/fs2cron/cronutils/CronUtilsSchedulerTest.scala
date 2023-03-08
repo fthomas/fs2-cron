@@ -14,25 +14,31 @@
  * limitations under the License.
  */
 
-package eu.timepit.fs2cron.calev
+package eu.timepit.fs2cron.cronutils
 
 import cats.effect.IO
-import com.github.eikek.calev.CalEvent
+import com.cronutils.model.CronType
+import com.cronutils.model.definition.CronDefinitionBuilder
+import com.cronutils.model.time.ExecutionTime
+import com.cronutils.parser.CronParser
 import fs2.Stream
 import munit.CatsEffectSuite
 
 import java.time.{Instant, ZoneId, ZoneOffset}
 
-class CalevSchedulerTest extends CatsEffectSuite {
-  private val everySecond: CalEvent = CalEvent.unsafe("*-*-* *:*:*")
-  private val evenSeconds: CalEvent = CalEvent.unsafe("*-*-* *:*:0/2")
+class CronUtilsSchedulerTest extends CatsEffectSuite {
+  private val cronDef = CronDefinitionBuilder.instanceDefinitionFor(CronType.SPRING)
+  private val parser = new CronParser(cronDef)
+
+  private val everySecond = ExecutionTime.forCron(parser.parse("* * * ? * *"))
+  private val evenSeconds = ExecutionTime.forCron(parser.parse("*/2 * * ? * *"))
 
   private def isEven(i: Long): Boolean = i % 2 == 0
   private def instantSeconds(i: Instant): Long = i.getEpochSecond
   private val evalInstantNow: Stream[IO, Instant] = Stream.eval(IO(Instant.now()))
 
-  private val schedulerSys = CalevScheduler.systemDefault[IO]
-  private val schedulerUtc = CalevScheduler.utc[IO]
+  private val schedulerSys = CronUtilsScheduler.systemDefault[IO]
+  private val schedulerUtc = CronUtilsScheduler.utc[IO]
 
   test("awakeEvery") {
     val s1 = schedulerSys.awakeEvery(evenSeconds) >> evalInstantNow
@@ -60,7 +66,7 @@ class CalevSchedulerTest extends CatsEffectSuite {
 
   test("timezones") {
     val zoneId: ZoneId = ZoneOffset.ofTotalSeconds(1)
-    val scheduler = CalevScheduler.from(IO.pure(zoneId))
+    val scheduler = CronUtilsScheduler.from(IO.pure(zoneId))
 
     val s1 = scheduler.awakeEvery(evenSeconds) >> evalInstantNow
     val s2 = s1.map(instantSeconds).take(2).forall(!isEven(_))
