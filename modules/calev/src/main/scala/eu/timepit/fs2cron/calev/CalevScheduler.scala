@@ -16,11 +16,11 @@
 
 package eu.timepit.fs2cron.calev
 
-import cats.effect.{Sync, Temporal}
+import cats.effect.Temporal
 import com.github.eikek.calev.CalEvent
 import eu.timepit.fs2cron.{Scheduler, ZonedDateTimeScheduler}
 
-import java.time.{ZoneId, ZoneOffset, ZonedDateTime}
+import java.time.{ZoneId, ZonedDateTime}
 
 object CalevScheduler extends ZonedDateTimeScheduler.Companion[CalEvent] {
   override def from[F[_]](zoneId: F[ZoneId])(implicit F: Temporal[F]): Scheduler[F, CalEvent] =
