@@ -71,17 +71,15 @@ lazy val root = tlCrossRootProject
 lazy val core = myCrossProject("core")
   .settings(
     libraryDependencies ++= Seq(
-      Dependencies.fs2Core
+      Dependencies.fs2Core,
+      Dependencies.munitCatsEffect % Test
     )
   )
 
 lazy val calev = myCrossProject("calev")
-  .dependsOn(core)
+  .dependsOn(core % "compile->compile;test->test")
   .settings(
-    libraryDependencies ++= Seq(
-      Dependencies.calevCore,
-      Dependencies.munitCatsEffect % Test
-    ),
+    libraryDependencies += Dependencies.calevCore,
     initialCommands := s"""
       import $rootPkg._
       import $rootPkg.calev._
@@ -94,13 +92,10 @@ lazy val calev = myCrossProject("calev")
   )
 
 lazy val cron4s = myCrossProject("cron4s")
-  .dependsOn(core)
+  .dependsOn(core % "compile->compile;test->test")
   .settings(
     crossScalaVersions := List(Scala_2_12, Scala_2_13),
-    libraryDependencies ++= Seq(
-      Dependencies.cron4s,
-      Dependencies.munitCatsEffect % Test
-    ),
+    libraryDependencies += Dependencies.cron4s,
     initialCommands := s"""
       import $rootPkg._
       import cats.effect.unsafe.implicits.global
@@ -112,12 +107,9 @@ lazy val cron4s = myCrossProject("cron4s")
   )
 
 lazy val cronUtils = myCrossProject("cron-utils")
-  .dependsOn(core)
+  .dependsOn(core % "compile->compile;test->test")
   .settings(
-    libraryDependencies ++= Seq(
-      Dependencies.cronUtils,
-      Dependencies.munitCatsEffect % Test
-    ),
+    libraryDependencies += Dependencies.cronUtils,
     tlVersionIntroduced := Map(
       "2.12" -> "0.8.2",
       "2.13" -> "0.8.2",

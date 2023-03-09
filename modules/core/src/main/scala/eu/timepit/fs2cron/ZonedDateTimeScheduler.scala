@@ -16,11 +16,11 @@
 
 package eu.timepit.fs2cron
 
-import cats.effect.Temporal
+import cats.effect.{Sync, Temporal}
 import cats.syntax.all._
 
 import java.time.temporal.ChronoUnit
-import java.time.{ZoneId, ZonedDateTime}
+import java.time.{ZoneId, ZoneOffset, ZonedDateTime}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 
@@ -39,4 +39,19 @@ abstract class ZonedDateTimeScheduler[F[_], Schedule](zoneId: F[ZoneId])(implici
 
   private val now: F[ZonedDateTime] =
     (temporal.realTimeInstant, zoneId).mapN(_.atZone(_))
+}
+
+object ZonedDateTimeScheduler {
+  trait Companion[Schedule] {
+    final def systemDefault[F[_]](implicit
+        temporal: Temporal[F],
+        F: Sync[F]
+    ): Scheduler[F, Schedule] =
+      from(F.delay(ZoneId.systemDefault()))
+
+    final def utc[F[_]](implicit F: Temporal[F]): Scheduler[F, Schedule] =
+      from(F.pure(ZoneOffset.UTC))
+
+    def from[F[_]](zoneId: F[ZoneId])(implicit F: Temporal[F]): Scheduler[F, Schedule]
+  }
 }
