@@ -80,14 +80,9 @@ lazy val calev = myCrossProject("calev")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
     libraryDependencies += Dependencies.calevCore,
-    initialCommands := s"""
-      import $rootPkg._
+    initialCommands += s"""
       import $rootPkg.calev._
-      import cats.effect.IO
-      import cats.effect.unsafe.implicits.global
       import com.github.eikek.calev._
-      import fs2.Stream
-      import scala.concurrent.ExecutionContext
     """
   )
 
@@ -96,13 +91,10 @@ lazy val cron4s = myCrossProject("cron4s")
   .settings(
     crossScalaVersions := List(Scala_2_12, Scala_2_13),
     libraryDependencies += Dependencies.cron4s,
-    initialCommands := s"""
-      import $rootPkg._
-      import cats.effect.unsafe.implicits.global
-      import cats.effect.IO
+    initialCommands += s"""
+      import $rootPkg.cron4s._
       import _root_.cron4s.Cron
-      import fs2.Stream
-      import scala.concurrent.ExecutionContext
+      import _root_.cron4s.expr.CronExpr
     """
   )
 
@@ -110,6 +102,13 @@ lazy val cronUtils = myCrossProject("cron-utils")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
     libraryDependencies += Dependencies.cronUtils,
+    initialCommands += s"""
+      import $rootPkg.cronutils._
+      import com.cronutils.model.CronType
+      import com.cronutils.model.definition.CronDefinitionBuilder
+      import com.cronutils.model.time.ExecutionTime
+      import com.cronutils.parser.CronParser
+    """,
     tlVersionIntroduced := Map(
       "2.12" -> "0.8.2",
       "2.13" -> "0.8.2",
@@ -149,7 +148,13 @@ lazy val commonSettings = Def.settings(
 
 lazy val compileSettings = Def.settings(
   scalaVersion := Scala_2_13,
-  crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3)
+  crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3),
+  initialCommands := s"""
+    import $rootPkg._
+    import cats.effect.IO
+    import cats.effect.unsafe.implicits.global
+    import fs2.Stream
+  """
 )
 
 lazy val metadataSettings = Def.settings(
