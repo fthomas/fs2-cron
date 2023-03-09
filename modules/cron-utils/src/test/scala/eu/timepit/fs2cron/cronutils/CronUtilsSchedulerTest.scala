@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 fs2-cron contributors
+ * Copyright 2018-2023 fs2-cron contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,60 +16,17 @@
 
 package eu.timepit.fs2cron.cronutils
 
-import cats.effect.IO
 import com.cronutils.model.CronType
 import com.cronutils.model.definition.CronDefinitionBuilder
 import com.cronutils.model.time.ExecutionTime
 import com.cronutils.parser.CronParser
-import fs2.Stream
-import munit.CatsEffectSuite
+import eu.timepit.fs2cron.ZonedDateTimeSchedulerSuite
 
-import java.time.{Instant, ZoneId, ZoneOffset}
-
-class CronUtilsSchedulerTest extends CatsEffectSuite {
+class CronUtilsSchedulerTest extends ZonedDateTimeSchedulerSuite[ExecutionTime] {
   private val cronDef = CronDefinitionBuilder.instanceDefinitionFor(CronType.SPRING)
   private val parser = new CronParser(cronDef)
 
-  private val everySecond = ExecutionTime.forCron(parser.parse("* * * ? * *"))
-  private val evenSeconds = ExecutionTime.forCron(parser.parse("*/2 * * ? * *"))
-
-  private def isEven(i: Long): Boolean = i % 2 == 0
-  private def instantSeconds(i: Instant): Long = i.getEpochSecond
-  private val evalInstantNow: Stream[IO, Instant] = Stream.eval(IO(Instant.now()))
-
-  private val schedulerSys = CronUtilsScheduler.systemDefault[IO]
-  private val schedulerUtc = CronUtilsScheduler.utc[IO]
-
-  test("awakeEvery") {
-    val s1 = schedulerSys.awakeEvery(evenSeconds) >> evalInstantNow
-    val s2 = s1.map(instantSeconds).take(2).forall(isEven)
-    assertIO(s2.compile.last, Some(true))
-  }
-
-  test("sleep") {
-    val s1 = schedulerUtc.sleep(evenSeconds) >> evalInstantNow
-    val s2 = s1.map(instantSeconds).forall(isEven)
-    assertIO(s2.compile.last, Some(true))
-  }
-
-  test("schedule") {
-    val s1 = schedulerSys
-      .schedule(List(everySecond -> evalInstantNow, evenSeconds -> evalInstantNow))
-      .map(instantSeconds)
-
-    for {
-      seconds <- s1.take(3).compile.toList
-      _ = assertEquals(seconds.count(isEven), 2)
-      _ = assertEquals(seconds.count(!isEven(_)), 1)
-    } yield ()
-  }
-
-  test("timezones") {
-    val zoneId: ZoneId = ZoneOffset.ofTotalSeconds(1)
-    val scheduler = CronUtilsScheduler.from(IO.pure(zoneId))
-
-    val s1 = scheduler.awakeEvery(evenSeconds) >> evalInstantNow
-    val s2 = s1.map(instantSeconds).take(2).forall(!isEven(_))
-    assertIO(s2.compile.last, Some(true))
-  }
+  override def schedulerCompanion: CronUtilsScheduler.type = CronUtilsScheduler
+  override val everySecond: ExecutionTime = ExecutionTime.forCron(parser.parse("* * * ? * *"))
+  override val evenSeconds: ExecutionTime = ExecutionTime.forCron(parser.parse("*/2 * * ? * *"))
 }

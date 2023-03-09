@@ -71,17 +71,15 @@ lazy val root = tlCrossRootProject
 lazy val core = myCrossProject("core")
   .settings(
     libraryDependencies ++= Seq(
-      Dependencies.fs2Core
+      Dependencies.fs2Core,
+      Dependencies.munitCatsEffect % Test
     )
   )
 
 lazy val calev = myCrossProject("calev")
-  .dependsOn(core)
+  .dependsOn(core % "compile->compile;test->test")
   .settings(
-    libraryDependencies ++= Seq(
-      Dependencies.calevCore,
-      Dependencies.munitCatsEffect % Test
-    ),
+    libraryDependencies += Dependencies.calevCore,
     initialCommands += s"""
       import $rootPkg.calev._
       import com.github.eikek.calev._
@@ -89,13 +87,10 @@ lazy val calev = myCrossProject("calev")
   )
 
 lazy val cron4s = myCrossProject("cron4s")
-  .dependsOn(core)
+  .dependsOn(core % "compile->compile;test->test")
   .settings(
     crossScalaVersions := List(Scala_2_12, Scala_2_13),
-    libraryDependencies ++= Seq(
-      Dependencies.cron4s,
-      Dependencies.munitCatsEffect % Test
-    ),
+    libraryDependencies += Dependencies.cron4s,
     initialCommands += s"""
       import $rootPkg.cron4s._
       import _root_.cron4s.Cron
@@ -104,12 +99,9 @@ lazy val cron4s = myCrossProject("cron4s")
   )
 
 lazy val cronUtils = myCrossProject("cron-utils")
-  .dependsOn(core)
+  .dependsOn(core % "compile->compile;test->test")
   .settings(
-    libraryDependencies ++= Seq(
-      Dependencies.cronUtils,
-      Dependencies.munitCatsEffect % Test
-    ),
+    libraryDependencies += Dependencies.cronUtils,
     initialCommands += s"""
       import $rootPkg.cronutils._
       import com.cronutils.model.CronType
@@ -166,7 +158,7 @@ lazy val compileSettings = Def.settings(
 )
 
 lazy val metadataSettings = Def.settings(
-  headerLicense := Some(HeaderLicense.ALv2("2018-2021", s"$projectName contributors"))
+  headerLicense := Some(HeaderLicense.ALv2("2018-2023", s"$projectName contributors"))
 )
 
 /// commands
