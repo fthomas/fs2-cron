@@ -158,7 +158,7 @@ lazy val compileSettings = Def.settings(
 )
 
 lazy val metadataSettings = Def.settings(
-  headerLicense := Some(HeaderLicense.ALv2("2018-2021", s"$projectName contributors"))
+  headerLicense := Some(HeaderLicense.ALv2("2018-2023", s"$projectName contributors"))
 )
 
 /// commands

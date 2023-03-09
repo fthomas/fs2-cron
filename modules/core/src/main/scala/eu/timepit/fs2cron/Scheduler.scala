@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2021 fs2-cron contributors
+ * Copyright 2018-2023 fs2-cron contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
