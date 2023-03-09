@@ -34,7 +34,7 @@ ThisBuild / githubWorkflowBuild ++= Seq(
   WorkflowStep.Sbt(
     commands = List("readme/mdoc"),
     name = Some("Check README"),
-    cond = Some(s"matrix.scala != '$Scala_3'")
+    cond = Some(s"matrix.scala != '$Scala_3' && matrix.project == 'rootJVM'")
   ),
   WorkflowStep.Sbt(
     commands = List("coverage", "test", "coverageReport"),
