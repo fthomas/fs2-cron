@@ -5,15 +5,14 @@ import sbtcrossproject.{CrossProject, CrossType, Platform}
 val groupId = "eu.timepit"
 val projectName = "fs2-cron"
 val rootPkg = s"$groupId.${projectName.replace("-", "")}"
-val gitHubOwner = "fthomas"
 
 val Scala_2_12 = "2.12.17"
 val Scala_2_13 = "2.13.10"
 val Scala_3 = "3.2.2"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
-  "calev" -> List(JVMPlatform),
-  "core" -> List(JVMPlatform),
+  "calev" -> List(JVMPlatform, JSPlatform),
+  "core" -> List(JVMPlatform, JSPlatform),
   "cron4s" -> List(JVMPlatform),
   "cron-utils" -> List(JVMPlatform)
 )
@@ -71,26 +70,41 @@ lazy val root = tlCrossRootProject
 lazy val core = myCrossProject("core")
   .settings(
     libraryDependencies ++= Seq(
-      Dependencies.fs2Core,
-      Dependencies.munitCatsEffect % Test
+      "co.fs2" %%% "fs2-core" % "3.6.1",
+      "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7" % Test
+    )
+  )
+  .jsSettings(
+    tlVersionIntroduced := Map(
+      "2.12" -> "0.8.3",
+      "2.13" -> "0.8.3",
+      "3" -> "0.8.3"
     )
   )
 
 lazy val calev = myCrossProject("calev")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
-    libraryDependencies += Dependencies.calevCore,
+    libraryDependencies += "com.github.eikek" %%% "calev-core" % "0.6.4",
     initialCommands += s"""
       import $rootPkg.calev._
       import com.github.eikek.calev._
     """
+  )
+  .jsSettings(
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time-tzdb" % "2.5.0" % Test,
+    tlVersionIntroduced := Map(
+      "2.12" -> "0.8.3",
+      "2.13" -> "0.8.3",
+      "3" -> "0.8.3"
+    )
   )
 
 lazy val cron4s = myCrossProject("cron4s")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
     crossScalaVersions := List(Scala_2_12, Scala_2_13),
-    libraryDependencies += Dependencies.cron4s,
+    libraryDependencies += "com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.6.1",
     initialCommands += s"""
       import $rootPkg.cron4s._
       import _root_.cron4s.Cron
@@ -101,7 +115,7 @@ lazy val cron4s = myCrossProject("cron4s")
 lazy val cronUtils = myCrossProject("cron-utils")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
-    libraryDependencies += Dependencies.cronUtils,
+    libraryDependencies += "com.cronutils" % "cron-utils" % "9.2.0",
     initialCommands += s"""
       import $rootPkg.cronutils._
       import com.cronutils.model.CronType
