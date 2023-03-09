@@ -20,7 +20,7 @@ import cats.effect.{Sync, Temporal}
 import cats.syntax.all._
 
 import java.time.temporal.ChronoUnit
-import java.time.{ZoneId, ZoneOffset, ZonedDateTime}
+import java.time.{Instant, ZoneId, ZoneOffset, ZonedDateTime}
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 
@@ -38,7 +38,7 @@ abstract class ZonedDateTimeScheduler[F[_], Schedule](zoneId: F[ZoneId])(implici
     }
 
   private val now: F[ZonedDateTime] =
-    (temporal.realTimeInstant, zoneId).mapN(_.atZone(_))
+    (temporal.realTime, zoneId).mapN((d, z) => Instant.EPOCH.plusNanos(d.toNanos).atZone(z))
 }
 
 object ZonedDateTimeScheduler {
