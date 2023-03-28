@@ -115,7 +115,7 @@ lazy val cron4s = myCrossProject("cron4s")
 lazy val cronUtils = myCrossProject("cron-utils")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
-    libraryDependencies += "com.cronutils" % "cron-utils" % "9.2.0",
+    libraryDependencies += "com.cronutils" % "cron-utils" % "9.2.1",
     initialCommands += s"""
       import $rootPkg.cronutils._
       import com.cronutils.model.CronType
