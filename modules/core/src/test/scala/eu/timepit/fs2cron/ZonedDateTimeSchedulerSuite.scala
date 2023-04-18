@@ -29,7 +29,7 @@ trait ZonedDateTimeSchedulerSuite[Schedule] extends CatsEffectSuite {
 
   private def isEven(i: Long): Boolean = i % 2 == 0
   private def instantSeconds(i: Instant): Long = i.getEpochSecond
-  private val evalInstantNow: Stream[IO, Instant] = Stream.eval(IO(Instant.now()))
+  private val evalInstantNow: Stream[IO, Instant] = Stream.eval(IO(Instant.now()).debug())
 
   private val schedulerSys = schedulerCompanion.systemDefault[IO]
   private val schedulerUtc = schedulerCompanion.utc[IO]
