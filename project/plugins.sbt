@@ -6,6 +6,6 @@ addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.3.7")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.9")
 
-addSbtPlugin("org.typelevel" % "sbt-typelevel" % "0.4.22")
+addSbtPlugin("org.typelevel" % "sbt-typelevel" % "0.5.3")
 
-addSbtPlugin("org.typelevel" % "sbt-typelevel-mergify" % "0.4.22")
+addSbtPlugin("org.typelevel" % "sbt-typelevel-mergify" % "0.5.3")
