@@ -65,9 +65,6 @@ ThisBuild / mergifyPrRules := {
 
 lazy val root = tlCrossRootProject
   .aggregate(calev, core, cron4s, cronUtils, readme)
-  .settings(
-    crossScalaVersions := Nil
-  )
 
 lazy val core = myCrossProject("core")
   .settings(
@@ -105,13 +102,16 @@ lazy val calev = myCrossProject("calev")
 lazy val cron4s = myCrossProject("cron4s")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
-    crossScalaVersions := List(Scala_2_12, Scala_2_13),
-    libraryDependencies += "com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.6.1",
+    libraryDependencies := {
+      if (tlIsScala3.value) Nil
+      else List("com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.6.1")
+    },
     initialCommands += s"""
       import $rootPkg.cron4s._
       import _root_.cron4s.Cron
       import _root_.cron4s.expr.CronExpr
-    """
+    """,
+    publish / skip := tlIsScala3.value
   )
 
 lazy val cronUtils = myCrossProject("cron-utils")
