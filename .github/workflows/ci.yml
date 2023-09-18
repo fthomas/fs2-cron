@@ -75,7 +75,7 @@ jobs:
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' doc
 
       - name: Check README
-        if: matrix.scala != '3.3.1' && matrix.project == 'rootJVM'
+        if: matrix.scala != '3' && matrix.project == 'rootJVM'
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' readme/mdoc
 
       - name: Generate coverage report
