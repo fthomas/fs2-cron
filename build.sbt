@@ -26,7 +26,6 @@ ThisBuild / licenses := Seq(License.Apache2)
 ThisBuild / developers := List(
   tlGitHubDev("fthomas", "Frank S. Thomas")
 )
-ThisBuild / tlSkipIrrelevantScalas := true
 ThisBuild / scalaVersion := Scala_2_13
 ThisBuild / crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3)
 ThisBuild / tlCiReleaseBranches := Seq("master")
@@ -66,6 +65,9 @@ ThisBuild / mergifyPrRules := {
 
 lazy val root = tlCrossRootProject
   .aggregate(calev, core, cron4s, cronUtils, readme)
+  .settings(
+    crossScalaVersions := Nil
+  )
 
 lazy val core = myCrossProject("core")
   .settings(
