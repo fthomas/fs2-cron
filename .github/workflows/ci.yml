@@ -79,7 +79,7 @@ jobs:
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' readme/mdoc
 
       - name: Generate coverage report
-        if: matrix.scala != '3.3.1'
+        if: matrix.scala != '3'
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' coverage test coverageReport
 
       - name: Codecov
