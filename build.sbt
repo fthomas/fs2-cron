@@ -102,8 +102,8 @@ lazy val calev = myCrossProject("calev")
 lazy val cron4s = myCrossProject("cron4s")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
-    libraryDependencies := {
-      if (tlIsScala3.value) Nil
+    libraryDependencies ++= {
+      if (tlIsScala3.value) List.empty
       else List("com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.6.1")
     },
     initialCommands += s"""
