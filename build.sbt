@@ -26,7 +26,6 @@ ThisBuild / licenses := Seq(License.Apache2)
 ThisBuild / developers := List(
   tlGitHubDev("fthomas", "Frank S. Thomas")
 )
-ThisBuild / tlSkipIrrelevantScalas := true
 ThisBuild / scalaVersion := Scala_2_13
 ThisBuild / crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3)
 ThisBuild / tlCiReleaseBranches := Seq("master")
@@ -34,12 +33,12 @@ ThisBuild / githubWorkflowBuild ++= Seq(
   WorkflowStep.Sbt(
     commands = List("readme/mdoc"),
     name = Some("Check README"),
-    cond = Some(s"matrix.scala != '$Scala_3' && matrix.project == 'rootJVM'")
+    cond = Some(s"matrix.scala != '3' && matrix.project == 'rootJVM'")
   ),
   WorkflowStep.Sbt(
     commands = List("coverage", "test", "coverageReport"),
     name = Some("Generate coverage report"),
-    cond = Some(s"matrix.scala != '$Scala_3'")
+    cond = Some(s"matrix.scala != '3'")
   ),
   WorkflowStep.Use(
     ref = UseRef.Public("codecov", "codecov-action", "v3"),
@@ -103,13 +102,17 @@ lazy val calev = myCrossProject("calev")
 lazy val cron4s = myCrossProject("cron4s")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
-    crossScalaVersions := List(Scala_2_12, Scala_2_13),
-    libraryDependencies += "com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.6.1",
+    libraryDependencies ++= {
+      if (tlIsScala3.value) List.empty
+      else List("com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.6.1")
+    },
     initialCommands += s"""
       import $rootPkg.cron4s._
       import _root_.cron4s.Cron
       import _root_.cron4s.expr.CronExpr
-    """
+    """,
+    mimaPreviousArtifacts := { if (tlIsScala3.value) Set.empty else mimaPreviousArtifacts.value },
+    publish / skip := tlIsScala3.value
   )
 
 lazy val cronUtils = myCrossProject("cron-utils")
