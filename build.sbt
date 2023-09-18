@@ -111,7 +111,7 @@ lazy val cron4s = myCrossProject("cron4s")
       import _root_.cron4s.Cron
       import _root_.cron4s.expr.CronExpr
     """,
-    tlVersionIntroduced := tlVersionIntroduced.value - "3",
+    mimaPreviousArtifacts := { if (tlIsScala3.value) Set.empty else mimaPreviousArtifacts.value },
     publish / skip := tlIsScala3.value
   )
 
