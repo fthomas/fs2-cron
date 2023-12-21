@@ -57,7 +57,7 @@ ThisBuild / mergifyPrRules := {
     MergifyPrRule(
       "merge scala-steward's PRs",
       List(authorCondition) ++ mergifySuccessConditions.value,
-      List(MergifyAction.Merge(Some("squash")))
+      List(MergifyAction.Merge(Some("merge")))
     )
   )
 }
