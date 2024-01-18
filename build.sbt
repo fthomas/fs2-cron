@@ -20,7 +20,7 @@ val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
 /// global settings
 
 ThisBuild / organization := groupId
-ThisBuild / tlBaseVersion := "0.8"
+ThisBuild / tlBaseVersion := "0.9"
 ThisBuild / startYear := Some(2018)
 ThisBuild / licenses := Seq(License.Apache2)
 ThisBuild / developers := List(
@@ -108,17 +108,18 @@ lazy val calev = myCrossProject("calev")
 lazy val cron4s = myCrossProject("cron4s")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
+    libraryDependencies += "com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.7.0",
     libraryDependencies ++= {
-      if (tlIsScala3.value) List.empty
-      else List("com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.6.1")
+      if (scalaVersion.value.startsWith("2.12."))
+        List(scalaOrganization.value % "scala-reflect" % scalaVersion.value)
+      else
+        List()
     },
     initialCommands += s"""
       import $rootPkg.cron4s._
       import _root_.cron4s.Cron
       import _root_.cron4s.expr.CronExpr
-    """,
-    mimaPreviousArtifacts := { if (tlIsScala3.value) Set.empty else mimaPreviousArtifacts.value },
-    publish / skip := tlIsScala3.value
+    """
   )
 
 lazy val cronUtils = myCrossProject("cron-utils")
