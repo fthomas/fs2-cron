@@ -110,7 +110,7 @@ lazy val cron4s = myCrossProject("cron4s")
   .settings(
     libraryDependencies ++= {
       if (tlIsScala3.value) List.empty
-      else List("com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.6.1")
+      else List("com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.7.0")
     },
     initialCommands += s"""
       import $rootPkg.cron4s._
