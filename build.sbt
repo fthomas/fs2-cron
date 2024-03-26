@@ -75,7 +75,7 @@ lazy val root = tlCrossRootProject
 lazy val core = myCrossProject("core")
   .settings(
     libraryDependencies ++= Seq(
-      "co.fs2" %%% "fs2-core" % "3.10.0",
+      "co.fs2" %%% "fs2-core" % "3.10.1",
       "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7" % Test
     )
   )
