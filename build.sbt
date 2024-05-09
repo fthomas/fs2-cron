@@ -7,7 +7,7 @@ val projectName = "fs2-cron"
 val rootPkg = s"$groupId.${projectName.replace("-", "")}"
 
 val Scala_2_12 = "2.12.19"
-val Scala_2_13 = "2.13.13"
+val Scala_2_13 = "2.13.14"
 val Scala_3 = "3.4.1"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
