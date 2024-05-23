@@ -76,7 +76,7 @@ lazy val core = myCrossProject("core")
   .settings(
     libraryDependencies ++= Seq(
       "co.fs2" %%% "fs2-core" % "3.10.2",
-      "org.typelevel" %%% "munit-cats-effect-3" % "1.0.7" % Test
+      "org.typelevel" %%% "munit-cats-effect" % "2.0.0" % Test
     )
   )
   .jsSettings(
