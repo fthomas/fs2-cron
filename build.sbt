@@ -90,7 +90,7 @@ lazy val core = myCrossProject("core")
 lazy val calev = myCrossProject("calev")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
-    libraryDependencies += "com.github.eikek" %%% "calev-core" % "0.7.2",
+    libraryDependencies += "com.github.eikek" %%% "calev-core" % "0.7.3",
     initialCommands += s"""
       import $rootPkg.calev._
       import com.github.eikek.calev._
