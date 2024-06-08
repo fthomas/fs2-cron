@@ -97,7 +97,7 @@ lazy val calev = myCrossProject("calev")
     """
   )
   .jsSettings(
-    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time-tzdb" % "2.5.0" % Test,
+    libraryDependencies += "io.github.cquiroz" %%% "scala-java-time-tzdb" % "2.6.0" % Test,
     tlVersionIntroduced := Map(
       "2.12" -> "0.8.3",
       "2.13" -> "0.8.3",
