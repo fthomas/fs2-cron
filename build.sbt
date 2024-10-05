@@ -42,8 +42,9 @@ ThisBuild / githubWorkflowBuild ++= Seq(
     cond = Some(s"matrix.scala != '3'")
   ),
   WorkflowStep.Use(
-    ref = UseRef.Public("codecov", "codecov-action", "v3"),
-    name = Some("Codecov")
+    ref = UseRef.Public("codecov", "codecov-action", "v4"),
+    name = Some("Codecov"),
+    env = Map("CODECOV_TOKEN" -> "${{ secrets.CODECOV_TOKEN }}")
   )
 )
 ThisBuild / mergifyPrRules := {
