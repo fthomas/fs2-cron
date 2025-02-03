@@ -109,7 +109,7 @@ lazy val calev = myCrossProject("calev")
 lazy val cron4s = myCrossProject("cron4s")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
-    libraryDependencies += "com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.8.0",
+    libraryDependencies += "com.github.alonsodomin.cron4s" %% "cron4s-core" % "0.8.1",
     libraryDependencies ++= {
       if (scalaVersion.value.startsWith("2.12."))
         List(scalaOrganization.value % "scala-reflect" % scalaVersion.value)
