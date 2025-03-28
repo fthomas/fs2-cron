@@ -8,7 +8,7 @@ val rootPkg = s"$groupId.${projectName.replace("-", "")}"
 
 val Scala_2_12 = "2.12.20"
 val Scala_2_13 = "2.13.16"
-val Scala_3 = "3.6.3"
+val Scala_3 = "3.3.5"
 
 val moduleCrossPlatformMatrix: Map[String, List[Platform]] = Map(
   "calev" -> List(JVMPlatform, JSPlatform),
@@ -91,7 +91,7 @@ lazy val core = myCrossProject("core")
 lazy val calev = myCrossProject("calev")
   .dependsOn(core % "compile->compile;test->test")
   .settings(
-    libraryDependencies += "com.github.eikek" %%% "calev-core" % "0.7.3",
+    libraryDependencies += "com.github.eikek" %%% "calev-core" % "0.7.4",
     initialCommands += s"""
       import $rootPkg.calev._
       import com.github.eikek.calev._
