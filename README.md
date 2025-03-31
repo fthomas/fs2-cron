@@ -32,7 +32,7 @@ import cron4s.Cron
 import eu.timepit.fs2cron.cron4s.Cron4sScheduler
 
 val cronScheduler = Cron4sScheduler.systemDefault[IO]
-// cronScheduler: eu.timepit.fs2cron.Scheduler[IO, cron4s.expr.CronExpr] = eu.timepit.fs2cron.cron4s.Cron4sScheduler$$anon$1@6599c499
+// cronScheduler: eu.timepit.fs2cron.Scheduler[IO, cron4s.expr.CronExpr] = eu.timepit.fs2cron.cron4s.Cron4sScheduler$$anon$1@25eea02a
 
 val evenSeconds = Cron.unsafeParse("*/2 * * ? * *")
 // evenSeconds: cron4s.package.CronExpr = CronExpr(
@@ -48,9 +48,9 @@ val scheduled = cronScheduler.awakeEvery(evenSeconds) >> printTime
 // scheduled: Stream[[x]IO[x], Unit] = Stream(..)
 
 scheduled.take(3).compile.drain.unsafeRunSync()
-// 17:19:40.028505387
-// 17:19:42.000256751
-// 17:19:44.000734180
+// 12:17:48.032770646
+// 12:17:50.001097222
+// 12:17:52.000732258
 ```
 ```scala
 val everyFiveSeconds = Cron.unsafeParse("*/5 * * ? * *")
@@ -70,15 +70,15 @@ val scheduledTasks = cronScheduler.schedule(List(
 // scheduledTasks: Stream[IO, Unit] = Stream(..)
 
 scheduledTasks.take(9).compile.drain.unsafeRunSync()
-// 17:19:45.002013244 task 2
-// 17:19:46.001305699 task 1
-// 17:19:48.000946715 task 1
-// 17:19:50.001176046 task 1
-// 17:19:50.001195452 task 2
-// 17:19:52.000660885 task 1
-// 17:19:54.000997899 task 1
-// 17:19:55.000611742 task 2
-// 17:19:56.000755443 task 1
+// 12:17:54.001309092 task 1
+// 12:17:55.002303004 task 2
+// 12:17:56.001378253 task 1
+// 12:17:58.001008992 task 1
+// 12:18:00.001058382 task 2
+// 12:18:00.001275186 task 1
+// 12:18:02.001425277 task 1
+// 12:18:04.002083568 task 1
+// 12:18:05.001522523 task 2
 ```
 
 #### Cancelling the scheduled task
@@ -122,7 +122,7 @@ import com.github.eikek.calev.CalEvent
 import eu.timepit.fs2cron.calev.CalevScheduler
 
 val calevScheduler = CalevScheduler.systemDefault[IO]
-// calevScheduler: eu.timepit.fs2cron.Scheduler[IO, CalEvent] = eu.timepit.fs2cron.calev.CalevScheduler$$anon$1@4eff8f40
+// calevScheduler: eu.timepit.fs2cron.Scheduler[IO, CalEvent] = eu.timepit.fs2cron.calev.CalevScheduler$$anon$1@19ab8621
 val oddSeconds = CalEvent.unsafe("*-*-* *:*:1/2")
 // oddSeconds: CalEvent = CalEvent(
 //   weekday = All,
@@ -138,9 +138,9 @@ val oddSeconds = CalEvent.unsafe("*-*-* *:*:1/2")
 val calevScheduled = calevScheduler.awakeEvery(oddSeconds) >> printTime
 // calevScheduled: Stream[[x]IO[x], Unit] = Stream(..)
 calevScheduled.take(3).compile.drain.unsafeRunSync()
-// 17:19:57.005729413
-// 17:19:59.000573819
-// 17:20:01.000620887
+// 12:18:07.018297857
+// 12:18:09.000317064
+// 12:18:11.000249817
 ```
 
 ```scala
@@ -163,15 +163,15 @@ val calevScheduledTasks = calevScheduler.schedule(List(
 // calevScheduledTasks: Stream[IO, Unit] = Stream(..)
 
 calevScheduledTasks.take(9).compile.drain.unsafeRunSync()
-// 17:20:03.000515670 task 1
-// 17:20:04.000356051 task 2
-// 17:20:05.000244935 task 1
-// 17:20:07.000543625 task 1
-// 17:20:08.000939528 task 2
-// 17:20:09.000995747 task 1
-// 17:20:11.000393442 task 1
-// 17:20:12.000277541 task 2
-// 17:20:13.000742779 task 1
+// 12:18:12.000451379 task 2
+// 12:18:13.000994389 task 1
+// 12:18:15.000405413 task 1
+// 12:18:16.001177876 task 2
+// 12:18:17.001266828 task 1
+// 12:18:19.000612835 task 1
+// 12:18:20.000679117 task 2
+// 12:18:21.000881674 task 1
+// 12:18:23.000535002 task 1
 ```
 
 ## Using fs2-cron
@@ -181,8 +181,8 @@ The latest version of the library is available for Scala 2.12 and 2.13.
 If you're using sbt, add the following to your build:
 ```sbt
 libraryDependencies ++= Seq(
-  "eu.timepit" %% "fs2-cron-cron4s" % "0.10.1" //and/or
-  "eu.timepit" %% "fs2-cron-calev" % "0.10.1"
+  "eu.timepit" %% "fs2-cron-cron4s" % "0.10.2" //and/or
+  "eu.timepit" %% "fs2-cron-calev" % "0.10.2"
 )
 ```
 
