@@ -30,7 +30,7 @@ object Cron4sScheduler extends ZonedDateTimeScheduler.Companion[CronExpr] {
       override def next(from: ZonedDateTime, schedule: CronExpr): F[ZonedDateTime] =
         schedule.next(from) match {
           case Some(next) => F.pure(next)
-          case None =>
+          case None       =>
             val msg = s"Could not calculate the next date-time from $from " +
               s"given the cron expression '$schedule'. This should never happen."
             F.raiseError(new Throwable(msg))
