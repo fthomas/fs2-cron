@@ -28,7 +28,7 @@ object CalevScheduler extends ZonedDateTimeScheduler.Companion[CalEvent] {
       override def next(from: ZonedDateTime, schedule: CalEvent): F[ZonedDateTime] =
         schedule.nextElapse(from) match {
           case Some(next) => F.pure(next)
-          case None =>
+          case None       =>
             val msg = s"Could not calculate the next date-time from $from " +
               s"given the calendar event expression '${schedule.asString}'. This should never happen."
             F.raiseError(new Throwable(msg))
