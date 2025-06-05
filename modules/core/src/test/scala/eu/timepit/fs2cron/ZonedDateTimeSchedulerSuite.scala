@@ -28,7 +28,8 @@ trait ZonedDateTimeSchedulerSuite[Schedule] extends CatsEffectSuite {
   def evenSeconds: Schedule
 
   private def isEven(i: Long): Boolean = i % 2 == 0
-  private def instantSeconds(i: Instant): Long = i.getEpochSecond
+  private def instantSeconds(i: Instant): Long =
+    i.getEpochSecond + (if (i.getNano > 990000000) 1 else 0)
   private val evalInstantNow: Stream[IO, Instant] =
     Stream.eval(IO.realTime.map(d => Instant.EPOCH.plusNanos(d.toNanos)).debug())
 
