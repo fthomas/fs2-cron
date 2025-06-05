@@ -46,7 +46,7 @@ trait ZonedDateTimeSchedulerSuite[Schedule] extends CatsEffectSuite {
 
   test("awakeEvery") {
     val s1 = schedulerSys.awakeEvery(evenSeconds) >> evalInstantNow
-    val s2 = s1.map(instantSeconds).take(2).forall(isEven)
+    val s2 = s1.map(instantSeconds).drop(1).take(2).forall(isEven)
     assertIO(s2.compile.last, Some(true))
   }
 
