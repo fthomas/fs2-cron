@@ -167,7 +167,8 @@ def myCrossProject(name: String): CrossProject =
 
 lazy val commonSettings = Def.settings(
   compileSettings,
-  metadataSettings
+  metadataSettings,
+  Test / parallelExecution := false
 )
 
 lazy val compileSettings = Def.settings(

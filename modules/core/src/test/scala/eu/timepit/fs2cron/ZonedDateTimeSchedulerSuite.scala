@@ -45,18 +45,21 @@ trait ZonedDateTimeSchedulerSuite[Schedule] extends CatsEffectSuite {
   private val schedulerUtc = schedulerCompanion.utc[IO]
 
   test("awakeEvery") {
+    println("awakeEvery")
     val s1 = schedulerSys.awakeEvery(evenSeconds) >> evalInstantNow
     val s2 = s1.map(instantSeconds).take(2).forall(isEven)
     assertIO(s2.compile.last, Some(true))
   }
 
   test("sleep") {
+    println("sleep")
     val s1 = schedulerUtc.sleep(evenSeconds) >> evalInstantNow
     val s2 = s1.map(instantSeconds).forall(isEven)
     assertIO(s2.compile.last, Some(true))
   }
 
   test("schedule") {
+    println("schedule")
     val s1 = schedulerSys
       .schedule(List(everySecond -> evalInstantNow, evenSeconds -> evalInstantNow))
       .map(instantSeconds)
@@ -69,6 +72,7 @@ trait ZonedDateTimeSchedulerSuite[Schedule] extends CatsEffectSuite {
   }
 
   test("timezones") {
+    println("timezones")
     val zoneId: ZoneId = ZoneOffset.ofTotalSeconds(1)
     val scheduler = schedulerCompanion.from(IO.pure(zoneId))
 
