@@ -29,7 +29,6 @@ ThisBuild / developers := List(
 ThisBuild / scalaVersion := Scala_2_13
 ThisBuild / crossScalaVersions := List(Scala_2_12, Scala_2_13, Scala_3)
 ThisBuild / tlCiReleaseBranches := Seq("master")
-ThisBuild / tlSonatypeUseLegacyHost := true
 ThisBuild / githubWorkflowBuild ++= Seq(
   WorkflowStep.Sbt(
     commands = List("readme/mdoc"),
