@@ -21,12 +21,12 @@ pull_request_rules:
   - or:
     - author=scala-steward
     - author=scala-steward[bot]
-  - status-success=Test (ubuntu-22.04, 2.12, temurin@8, rootJS)
-  - status-success=Test (ubuntu-22.04, 2.12, temurin@8, rootJVM)
-  - status-success=Test (ubuntu-22.04, 2.13, temurin@8, rootJS)
-  - status-success=Test (ubuntu-22.04, 2.13, temurin@8, rootJVM)
-  - status-success=Test (ubuntu-22.04, 3, temurin@8, rootJS)
-  - status-success=Test (ubuntu-22.04, 3, temurin@8, rootJVM)
+  - status-success=Test (ubuntu-22.04, 2.13.17, temurin@8, rootJS)
+  - status-success=Test (ubuntu-22.04, 2.13.17, temurin@8, rootJVM)
+  - status-success=Test (ubuntu-22.04, 2.13.16, temurin@8, rootJS)
+  - status-success=Test (ubuntu-22.04, 2.13.16, temurin@8, rootJVM)
+  - status-success=Test (ubuntu-22.04, 3.3.7, temurin@8, rootJS)
+  - status-success=Test (ubuntu-22.04, 3.3.7, temurin@8, rootJVM)
   actions:
     merge:
       method: merge
