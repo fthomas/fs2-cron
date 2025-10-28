@@ -20,7 +20,9 @@ import cats.effect.IO
 import fs2.Stream
 import munit.CatsEffectSuite
 
-import java.time.{Instant, ZoneId, ZoneOffset}
+import java.time.{Instant, ZoneId, ZoneOffset, ZonedDateTime}
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.FiniteDuration
 
 trait ZonedDateTimeSchedulerSuite[Schedule] extends CatsEffectSuite {
   def schedulerCompanion: ZonedDateTimeScheduler.Companion[Schedule]
@@ -75,5 +77,21 @@ trait ZonedDateTimeSchedulerSuite[Schedule] extends CatsEffectSuite {
     val s1 = scheduler.awakeEvery(evenSeconds) >> evalInstantNow
     val s2 = s1.map(instantSeconds).take(2).forall(!isEven(_))
     assertIO(s2.compile.last, Some(true))
+  }
+
+  test("durationUntilNext: from + duration >= next") {
+    val scheduler = schedulerUtc.asInstanceOf[ZonedDateTimeScheduler[IO, Schedule]]
+
+    val from = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 100000, ZoneOffset.UTC)
+    val duration = scheduler.durationUntilNext(from, everySecond)
+
+    val next = scheduler.next(from, everySecond)
+    val fromPlusDuration = duration.map(d => from.plusNanos(d.toNanos))
+    val fromPlusDurationGtEqNext = fromPlusDuration.flatMap(fpd => next.map(n => !fpd.isBefore(n)))
+
+    for {
+      _ <- assertIO(duration, FiniteDuration(1000L, TimeUnit.MILLISECONDS))
+      _ <- assertIOBoolean(fromPlusDurationGtEqNext)
+    } yield ()
   }
 }

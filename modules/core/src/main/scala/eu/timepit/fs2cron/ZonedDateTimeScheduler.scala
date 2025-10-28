@@ -17,7 +17,7 @@
 package eu.timepit.fs2cron
 
 import cats.effect.{Sync, Temporal}
-import cats.syntax.all._
+import cats.syntax.all.*
 
 import java.time.temporal.ChronoUnit
 import java.time.{Instant, ZoneId, ZoneOffset, ZonedDateTime}
@@ -29,13 +29,19 @@ abstract class ZonedDateTimeScheduler[F[_], Schedule](zoneId: F[ZoneId])(implici
 ) extends Scheduler[F, Schedule] {
   def next(from: ZonedDateTime, schedule: Schedule): F[ZonedDateTime]
 
-  override def fromNowUntilNext(schedule: Schedule): F[FiniteDuration] =
-    now.flatMap { from =>
-      next(from, schedule).map { to =>
-        val durationInMillis = from.until(to, ChronoUnit.MILLIS)
-        FiniteDuration(durationInMillis, TimeUnit.MILLISECONDS)
-      }
+  def durationUntilNext(from: ZonedDateTime, schedule: Schedule): F[FiniteDuration] =
+    next(from, schedule).map { to =>
+      val durationInMillis = from
+        // Since `until` only returns complete units between `from` and `to`,
+        // we truncate `from` to milliseconds, so that `durationInMillis` + `from`
+        // is never before `to`. See https://github.com/fthomas/fs2-cron/issues/598.
+        .truncatedTo(ChronoUnit.MILLIS)
+        .until(to, ChronoUnit.MILLIS)
+      FiniteDuration(durationInMillis, TimeUnit.MILLISECONDS)
     }
+
+  override def fromNowUntilNext(schedule: Schedule): F[FiniteDuration] =
+    now.flatMap(from => durationUntilNext(from, schedule))
 
   private val now: F[ZonedDateTime] =
     (temporal.realTime, zoneId).mapN((d, z) => Instant.EPOCH.plusNanos(d.toNanos).atZone(z))
