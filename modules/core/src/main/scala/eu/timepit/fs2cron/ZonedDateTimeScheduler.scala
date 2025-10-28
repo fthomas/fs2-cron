@@ -31,7 +31,12 @@ abstract class ZonedDateTimeScheduler[F[_], Schedule](zoneId: F[ZoneId])(implici
 
   def durationUntilNext(from: ZonedDateTime, schedule: Schedule): F[FiniteDuration] =
     next(from, schedule).map { to =>
-      val durationInMillis = from.until(to, ChronoUnit.MILLIS)
+      val durationInMillis = from
+        // Since `until` only returns complete units between `from` and `to`,
+        // we truncate `from` to milliseconds, so that `durationInMillis` + `from`
+        // is never before `to`. See https://github.com/fthomas/fs2-cron/issues/598.
+        .truncatedTo(ChronoUnit.MILLIS)
+        .until(to, ChronoUnit.MILLIS)
       FiniteDuration(durationInMillis, TimeUnit.MILLISECONDS)
     }
 

@@ -89,7 +89,9 @@ trait ZonedDateTimeSchedulerSuite[Schedule] extends CatsEffectSuite {
     val fromPlusDuration = duration.map(d => from.plusNanos(d.toNanos))
     val fromPlusDurationGtEqNext = fromPlusDuration.flatMap(fpd => next.map(n => !fpd.isBefore(n)))
 
-    assertIO(duration, FiniteDuration(1000L, TimeUnit.MILLISECONDS)) >>
-      assertIOBoolean(fromPlusDurationGtEqNext)
+    for {
+      _ <- assertIO(duration, FiniteDuration(1000L, TimeUnit.MILLISECONDS))
+      _ <- assertIOBoolean(fromPlusDurationGtEqNext)
+    } yield ()
   }
 }
